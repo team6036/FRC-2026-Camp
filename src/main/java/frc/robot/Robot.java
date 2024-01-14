@@ -8,6 +8,7 @@ import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import com.vendor.jni.VendorJNI;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -82,9 +83,9 @@ public class Robot extends TimedRobot {
   @Override
   public void teleopInit() {
     // jniTest = new JniInterface();
-    File test = new File(Filesystem.getDeployDirectory(), "libnative.so");
-    System.load(test.getAbsolutePath());
-    System.out.println(System.getProperty("sun.arch.data.model"));
+    // System.out.println(System.getProperty("sun.arch.data.model"));
+    VendorJNI idfk = new VendorJNI();
+    System.out.println(idfk.initialize());
   }
 
   /** This function is called periodically during operator control. */
