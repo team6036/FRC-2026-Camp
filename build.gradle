@@ -195,22 +195,6 @@ task spotlessDeploy {
     tasks.deploy.mustRunAfter(tasks.spotlessApply)
 }
 
-task createSubsystem(type: JavaExec) {
-    group = "team6036"
-    classpath = sourceSets.test.runtimeClasspath
-    standardInput = System.in
-    mainClass = "CreateSubsystem"
-}
-
-task updateLimelightLibrary(type: JavaExec) {
-    group = "team6036"
-    classpath = sourceSets.test.runtimeClasspath
-    standardInput = System.in
-    mainClass = "UpdateLimelightLibrary"
-
-    finalizedBy spotlessBuild
-}
-
 wrapper {
     gradleVersion '8.11'
 }
