@@ -1,3 +1,6 @@
+import java.nio.file.Files
+import java.nio.file.Paths
+
 plugins {
     id "java"
     id "edu.wpi.first.GradleRIO" version "2025.2.1"
@@ -12,6 +15,10 @@ java {
 }
 
 def ROBOT_MAIN_CLASS = "frc.robot.Main"
+
+compileJava {
+    options.compilerArgs << "-Xlint:unchecked" << "-Xlint:deprecation"
+}
 
 // Define my targets (RoboRIO) and artifacts (deployable files)
 // This is added by GradleRIO's backing project DeployUtils.
@@ -30,12 +37,19 @@ deploy {
                 // getTargetTypeClass is a shortcut to get the class type using a string
 
                 frcJava(getArtifactTypeClass('FRCJavaArtifact')) {
+                    //                    jvmArgs.add("-Dcom.sun.management.jmxremote=true")
+                    //                    jvmArgs.add("-Dcom.sun.management.jmxremote.port=1198")
+                    //                    jvmArgs.add("-Dcom.sun.management.jmxremote.local.only=false")
+                    //                    jvmArgs.add("-Dcom.sun.management.jmxremote.ssl=false")
+                    //                    jvmArgs.add("-Dcom.sun.management.jmxremote.authenticate=false")
+                    //                    jvmArgs.add("-Djava.rmi.server.hostname=10.60.36.2")
                 }
 
                 // Static files artifact
                 frcStaticFileDeploy(getArtifactTypeClass('FileTreeArtifact')) {
                     files = project.fileTree('src/main/deploy')
                     directory = '/home/lvuser/deploy'
+                    deleteOldFiles = false
                 }
             }
         }
@@ -48,7 +62,7 @@ def deployArtifact = deploy.targets.roborio.artifacts.frcJava
 wpi.java.debugJni = false
 
 // Set this to true to enable desktop support.
-def includeDesktopSupport = false
+def includeDesktopSupport = true
 
 // Defining my dependencies. In this case, WPILib (+ friends), and vendor libraries.
 // Also defines JUnit 5.
@@ -70,12 +84,15 @@ dependencies {
     nativeRelease wpi.java.vendor.jniRelease(wpi.platforms.desktop)
     simulationRelease wpi.sim.enableRelease()
 
-    // testImplementation 'org.junit.jupiter:junit-jupiter:5.10.1'
-    // testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.10.1'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 
-    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.2'
-    testImplementation 'org.junit.jupiter:junit-jupiter-params:5.8.2'
-    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.2'
+    implementation group: 'com.esotericsoftware', name: 'minlog', version: '1.3.0'
+
+    // https://mvnrepository.com/artifact/com.fasterxml.jackson.core/jackson-databind
+    implementation group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.12.7.1'
+
+    api group: 'org.ejml', name: 'ejml-simple', version: '0.41.1'
 }
 
 test {
@@ -91,7 +108,11 @@ wpi.sim.addDriverstation()
 // in order to make them all available at runtime. Also adding the manifest so WPILib
 // knows where to look for our Robot Class.
 jar {
-    from { configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) } }
+    from {
+        configurations.runtimeClasspath.collect {
+            it.isDirectory() ? it : zipTree(it)
+        }
+    }
     from sourceSets.main.allSource
     manifest edu.wpi.first.gradlerio.GradleRIOPlugin.javaManifest(ROBOT_MAIN_CLASS)
     duplicatesStrategy = DuplicatesStrategy.INCLUDE
@@ -105,4 +126,91 @@ wpi.java.configureTestTasks(test)
 // Configure string concat to always inline compile
 tasks.withType(JavaCompile) {
     options.compilerArgs.add '-XDstringConcat=inline'
+}
+
+project.compileJava.dependsOn(createVersionFile)
+gversion {
+    srcDir       = "src/main/java/"
+    classPackage = "frc.robot"
+    className    = "BuildConstants"
+    dateFormat   = "yyyy-MM-dd HH:mm:ss z"
+    timeZone     = "America/Los_Angeles"
+    indent       = "  "
+}
+
+apply plugin: 'com.diffplug.spotless'
+
+spotless {
+    java {
+        target fileTree('.') {
+            include '**/*.java'
+            exclude '**/build/**', '**/build-*/**', '**/BuildConstants.java'
+        }
+        toggleOffOn()
+        googleJavaFormat('1.15.0')
+        removeUnusedImports()
+        trimTrailingWhitespace()
+        endWithNewline()
+    }
+    groovyGradle {
+        target fileTree('.') {
+            include '**/*.gradle'
+            exclude '**/build/**', '**/build-*/**'
+        }
+        greclipse()
+        indentWithSpaces(4)
+        trimTrailingWhitespace()
+        endWithNewline()
+    }
+    format 'xml', {
+        target fileTree('.') {
+            include '**/*.xml'
+            exclude '**/build/**', '**/build-*/**'
+        }
+        eclipseWtp('xml')
+        trimTrailingWhitespace()
+        indentWithSpaces(2)
+        endWithNewline()
+    }
+    format 'misc', {
+        target fileTree('.') {
+            include '**/*.md', '**/.gitignore'
+            exclude '**/build/**', '**/build-*/**'
+        }
+        trimTrailingWhitespace()
+        indentWithSpaces(2)
+        endWithNewline()
+    }
+}
+
+task spotlessBuild {
+    group = "team6036"
+    dependsOn(tasks.spotlessApply, tasks.build)
+    tasks.build.mustRunAfter(tasks.spotlessApply)
+}
+
+task spotlessDeploy {
+    group = "team6036"
+    dependsOn(tasks.spotlessApply, tasks.deploy)
+    tasks.deploy.mustRunAfter(tasks.spotlessApply)
+}
+
+task createSubsystem(type: JavaExec) {
+    group = "team6036"
+    classpath = sourceSets.test.runtimeClasspath
+    standardInput = System.in
+    mainClass = "CreateSubsystem"
+}
+
+task updateLimelightLibrary(type: JavaExec) {
+    group = "team6036"
+    classpath = sourceSets.test.runtimeClasspath
+    standardInput = System.in
+    mainClass = "UpdateLimelightLibrary"
+
+    finalizedBy spotlessBuild
+}
+
+wrapper {
+    gradleVersion '8.11'
 }

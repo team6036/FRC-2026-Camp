@@ -7,6 +7,15 @@ package frc.robot;
 import edu.wpi.first.wpilibj.TimedRobot;
 
 public class Robot extends TimedRobot {
+  private final Mechanism mechanism;
+
+  public Robot() {
+    super(0.02);
+
+    mechanism = new Mechanism(11, "rio");
+    mechanism.startTuning(Mechanism.TuningType.VOLTAGE, Mechanism.Tuning.ARM_KS);
+  }
+
   @Override
   public void robotInit() {}
 
@@ -23,7 +32,9 @@ public class Robot extends TimedRobot {
   public void teleopInit() {}
 
   @Override
-  public void teleopPeriodic() {}
+  public void teleopPeriodic() {
+    mechanism.update();
+  }
 
   @Override
   public void disabledInit() {}
