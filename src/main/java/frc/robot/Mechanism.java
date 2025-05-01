@@ -4,7 +4,6 @@ import com.ctre.phoenix6.controls.*;
 import com.ctre.phoenix6.hardware.TalonFX;
 import edu.wpi.first.units.Units;
 import edu.wpi.first.wpilibj.XboxController;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import java.util.ArrayList;
 
 public class Mechanism {
@@ -23,6 +22,8 @@ public class Mechanism {
 
   private final ArrayList<Double> x = new ArrayList<>();
   private final ArrayList<Double> y = new ArrayList<>();
+
+  public double kS, kG, kV;
 
   public enum TuningType {
     VOLTAGE(12, 0.01),
@@ -50,28 +51,35 @@ public class Mechanism {
     followers = new ArrayList<>();
   }
 
-  public void addFollower(int id, boolean oppositeLeader) {
+  public Mechanism addFollower(int id, boolean oppositeLeader) {
     TalonFX motor = new TalonFX(id, leaderBus);
     motor.setControl(new Follower(leaderId, oppositeLeader));
     followers.add(motor);
+    return this;
   }
 
-  public void clearFollowers() {
+  public Mechanism clearFollowers() {
     for (TalonFX follower : followers) {
       follower.setControl(new CoastOut());
     }
     followers.clear();
+    return this;
   }
 
-  public void startTuning(TuningType tuningType, Tuning tuning, double baseSignal) {
+  public boolean isTuning() {
+    return tuning == Tuning.NONE;
+  }
+
+  public Mechanism startTuning(TuningType tuningType, Tuning tuning, double baseSignal) {
     this.tuningType = tuningType;
     this.tuning = tuning;
     stage = 0;
     this.baseSignal = baseSignal;
+    return this;
   }
 
-  public void startTuning(TuningType tuningType, Tuning tuning) {
-    startTuning(tuningType, tuning, 0);
+  public Mechanism startTuning(TuningType tuningType, Tuning tuning) {
+    return startTuning(tuningType, tuning, 0);
   }
 
   private boolean getStart() {
@@ -129,9 +137,11 @@ public class Mechanism {
     if (stage == 2) {
       stage++;
       LineEst.Line line = LineEst.estimate(x, y);
-      SmartDashboard.putNumber("Mechanism/FlywheelKS", line.b());
-      SmartDashboard.putNumber("Mechanism/FlywheelKV", line.m());
+      kS = line.b();
+      kV = line.m();
+      return;
     }
+    tuning = Tuning.NONE;
   }
 
   private void updateArmKS() {
@@ -149,12 +159,14 @@ public class Mechanism {
       if (Math.abs(motor.getRotorVelocity(true).getValue().in(Units.RotationsPerSecond)) > 1e-3
           || Math.abs(realSignal) >= tuningType.max
           || getCancel()) {
-        SmartDashboard.putNumber("Mechanism/ArmKS", signal);
+        kS = signal;
         stage++;
         return;
       }
       signal += tuningType.step;
+      return;
     }
+    tuning = Tuning.NONE;
   }
 
   private void updateArmKG() {
@@ -170,7 +182,7 @@ public class Mechanism {
       double realSignal = signal + baseSignal;
       setSignal(realSignal);
       if (Math.abs(realSignal) >= tuningType.max || getCancel()) {
-        SmartDashboard.putNumber("Mechanism/ArmKG", signal);
+        kG = signal;
         stage++;
         return;
       }
@@ -180,7 +192,9 @@ public class Mechanism {
       if (controller.getPOV() == 180) {
         signal -= tuningType.step;
       }
+      return;
     }
+    tuning = Tuning.NONE;
   }
 
   private void updateElevatorKGKS() {
@@ -224,10 +238,10 @@ public class Mechanism {
       stage++;
       double min = Math.min(x.get(0), x.get(1));
       double max = Math.max(x.get(0), x.get(1));
-      double kG = (min + max) / 2;
-      double kS = (max - min) / 2;
-      SmartDashboard.putNumber("Mechanism/ElevatorKG", kG);
-      SmartDashboard.putNumber("Mechanism/ElevatorKS", kS);
+      kG = (min + max) / 2;
+      kS = (max - min) / 2;
+      return;
     }
+    tuning = Tuning.NONE;
   }
 }
