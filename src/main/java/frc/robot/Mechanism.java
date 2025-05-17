@@ -4,6 +4,7 @@ import com.ctre.phoenix6.controls.*;
 import com.ctre.phoenix6.hardware.TalonFX;
 import edu.wpi.first.units.Units;
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import java.util.ArrayList;
 
 public class Mechanism {
@@ -67,7 +68,7 @@ public class Mechanism {
   }
 
   public boolean isTuning() {
-    return tuning == Tuning.NONE;
+    return tuning != Tuning.NONE;
   }
 
   public Mechanism startTuning(TuningType tuningType, Tuning tuning, double baseSignal) {
@@ -124,6 +125,9 @@ public class Mechanism {
     }
     if (stage == 1) {
       double realSignal = signal + baseSignal;
+      SmartDashboard.putNumber("signal", signal);
+      SmartDashboard.putNumber("baseSignal", baseSignal);
+      SmartDashboard.putNumber("realSignal", realSignal);
       setSignal(realSignal);
       x.add(motor.getRotorVelocity(true).getValue().in(Units.RotationsPerSecond));
       y.add(signal);
@@ -155,6 +159,9 @@ public class Mechanism {
     }
     if (stage == 1) {
       double realSignal = signal + baseSignal;
+      SmartDashboard.putNumber("signal", signal);
+      SmartDashboard.putNumber("baseSignal", baseSignal);
+      SmartDashboard.putNumber("realSignal", realSignal);
       setSignal(realSignal);
       if (Math.abs(motor.getRotorVelocity(true).getValue().in(Units.RotationsPerSecond)) > 1e-3
           || Math.abs(realSignal) >= tuningType.max
@@ -180,6 +187,9 @@ public class Mechanism {
     }
     if (stage == 1) {
       double realSignal = signal + baseSignal;
+      SmartDashboard.putNumber("signal", signal);
+      SmartDashboard.putNumber("baseSignal", baseSignal);
+      SmartDashboard.putNumber("realSignal", realSignal);
       setSignal(realSignal);
       if (Math.abs(realSignal) >= tuningType.max || getCancel()) {
         kG = signal;
@@ -210,6 +220,9 @@ public class Mechanism {
     }
     if (stage == 1) {
       double realSignal = signal + baseSignal;
+      SmartDashboard.putNumber("signal", signal);
+      SmartDashboard.putNumber("baseSignal", baseSignal);
+      SmartDashboard.putNumber("realSignal", realSignal);
       setSignal(realSignal);
       if (Math.abs(motor.getRotorVelocity(true).getValue().in(Units.RotationsPerSecond)) > 1e-3
           || Math.abs(realSignal) >= tuningType.max
@@ -223,6 +236,9 @@ public class Mechanism {
     }
     if (stage == 2) {
       double realSignal = signal + baseSignal;
+      SmartDashboard.putNumber("signal", signal);
+      SmartDashboard.putNumber("baseSignal", baseSignal);
+      SmartDashboard.putNumber("realSignal", realSignal);
       setSignal(realSignal);
       if (Math.abs(motor.getRotorVelocity(true).getValue().in(Units.RotationsPerSecond)) <= 1e-3
           || Math.abs(realSignal) >= tuningType.max

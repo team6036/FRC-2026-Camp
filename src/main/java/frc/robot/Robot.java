@@ -7,16 +7,16 @@ package frc.robot;
 import edu.wpi.first.wpilibj.TimedRobot;
 
 public class Robot extends TimedRobot {
-  private final FlywheelTuner flywheelTuner;
-  private final ArmTuner armTuner;
-  private final ElevatorTuner elevatorTuner;
+  private FlywheelTuner flywheelTuner;
+  private ArmTuner armTuner;
+  private ElevatorTuner elevatorTuner;
 
   public Robot() {
     super(0.02);
 
-    flywheelTuner = new FlywheelTuner(new Mechanism(0, ""), Mechanism.TuningType.VOLTAGE);
-    armTuner = new ArmTuner(new Mechanism(0, ""), Mechanism.TuningType.VOLTAGE);
-    elevatorTuner = new ElevatorTuner(new Mechanism(0, ""), Mechanism.TuningType.VOLTAGE);
+    //    flywheelTuner = new FlywheelTuner(new Mechanism(0, ""), Mechanism.TuningType.VOLTAGE);
+    armTuner = new ArmTuner(new Mechanism(11, "rio"), Mechanism.TuningType.VOLTAGE);
+    //    elevatorTuner = new ElevatorTuner(new Mechanism(0, ""), Mechanism.TuningType.VOLTAGE);
   }
 
   @Override
@@ -36,9 +36,9 @@ public class Robot extends TimedRobot {
 
   @Override
   public void teleopPeriodic() {
-    flywheelTuner.update();
+    //    flywheelTuner.update();
     armTuner.update();
-    elevatorTuner.update();
+    //    elevatorTuner.update();
   }
 
   @Override
