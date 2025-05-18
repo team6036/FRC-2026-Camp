@@ -1,9 +1,7 @@
 package frc.robot;
 
-import com.ctre.phoenix6.configs.MotorOutputConfigs;
 import com.ctre.phoenix6.controls.*;
 import com.ctre.phoenix6.hardware.TalonFX;
-import com.ctre.phoenix6.signals.InvertedValue;
 import edu.wpi.first.units.Units;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import java.util.ArrayList;
@@ -26,6 +24,7 @@ public class Mechanism {
   }
 
   public final Output output;
+  private final boolean invert;
   private double baseSignal = 0;
   private double signal = 0;
 
@@ -33,20 +32,14 @@ public class Mechanism {
   private final VoltageOut voltageControl = new VoltageOut(0);
   private final TorqueCurrentFOC torqueCurrentControl = new TorqueCurrentFOC(0);
 
-  public Mechanism(int id, String bus, Output output, InvertedValue motorInvert, boolean foc) {
+  public Mechanism(int id, String bus, Output output, boolean invert, boolean foc) {
     leaderId = id;
     leaderBus = bus;
     motor = new TalonFX(leaderId, leaderBus);
     followers = new ArrayList<>();
 
-    if (motorInvert != null) {
-      MotorOutputConfigs config = new MotorOutputConfigs();
-      motor.getConfigurator().refresh(config);
-      config.Inverted = motorInvert;
-      motor.getConfigurator().apply(config);
-    }
-
     this.output = output;
+    this.invert = invert;
 
     this.voltageControl.EnableFOC = foc;
   }
@@ -89,10 +82,11 @@ public class Mechanism {
     SmartDashboard.putNumber("Mechanism/signal", signal);
     SmartDashboard.putNumber("Mechanism/wholeSignal", getWholeSignal());
     SmartDashboard.putBoolean("Mechanism/isMoving", isMoving());
+    double wholeSignal = (invert ? -1 : 1) * getWholeSignal();
     motor.setControl(
         switch (output) {
-          case VOLTAGE -> voltageControl.withOutput(getWholeSignal());
-          case TORQUE -> torqueCurrentControl.withDeadband(getWholeSignal());
+          case VOLTAGE -> voltageControl.withOutput(wholeSignal);
+          case TORQUE -> torqueCurrentControl.withDeadband(wholeSignal);
         });
   }
 
