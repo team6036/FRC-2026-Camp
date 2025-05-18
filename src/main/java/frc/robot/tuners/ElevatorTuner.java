@@ -1,5 +1,6 @@
 package frc.robot.tuners;
 
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Mechanism;
 
@@ -15,7 +16,7 @@ public class ElevatorTuner extends TickingTuner {
 
   private int step;
   private double kGMax;
-  private int elevateTimer;
+  private double elevateTimer;
 
   public ElevatorTuner(Mechanism mech) {
     super(mech, 0.25);
@@ -30,7 +31,6 @@ public class ElevatorTuner extends TickingTuner {
     stage = Stage.WAIT;
     step = 0;
     kGMax = 0;
-    elevateTimer = 0;
   }
 
   @Override
@@ -48,13 +48,13 @@ public class ElevatorTuner extends TickingTuner {
           stage = Stage.ELEVATE;
           kGMax = mech.getWholeSignal();
           SmartDashboard.putNumber("ElevatorTuner/kGMax", kGMax);
+          elevateTimer = Timer.getFPGATimestamp();
           break;
         }
         mech.setSignal(step * mech.output.step);
       }
       case ELEVATE -> {
-        if (trigger) elevateTimer++;
-        if (getNext() || elevateTimer > 2) stage = Stage.RAMP_KG_MIN;
+        if (getNext() || (Timer.getFPGATimestamp() - elevateTimer) > 0.5) stage = Stage.RAMP_KG_MIN;
       }
       case RAMP_KG_MIN -> {
         if (trigger) step--;
