@@ -1,9 +1,6 @@
-import java.nio.file.Files
-import java.nio.file.Paths
-
 plugins {
     id "java"
-    id "edu.wpi.first.GradleRIO" version "2025.2.1"
+    id "edu.wpi.first.GradleRIO" version "2026.2.1"
     id "com.peterabeles.gversion" version "1.10"
     id "com.diffplug.spotless" version '6.25.0'
     id 'java-library'
@@ -49,7 +46,8 @@ deploy {
                 frcStaticFileDeploy(getArtifactTypeClass('FileTreeArtifact')) {
                     files = project.fileTree('src/main/deploy')
                     directory = '/home/lvuser/deploy'
-                    deleteOldFiles = false
+                    deleteOldFiles = false // Change to true to delete files on roboRIO that no
+                    // longer exist in deploy directory of this project
                 }
             }
         }
@@ -58,7 +56,8 @@ deploy {
 
 def deployArtifact = deploy.targets.roborio.artifacts.frcJava
 
-// Set to true to use debug for JNI.
+// Set to true to use debug for all targets including JNI, which will drastically impact
+// performance.
 wpi.java.debugJni = false
 
 // Set this to true to enable desktop support.
@@ -67,6 +66,7 @@ def includeDesktopSupport = true
 // Defining my dependencies. In this case, WPILib (+ friends), and vendor libraries.
 // Also defines JUnit 5.
 dependencies {
+    annotationProcessor wpi.java.deps.wpilibAnnotations()
     implementation wpi.java.deps.wpilib()
     implementation wpi.java.vendor.java()
 
@@ -113,7 +113,9 @@ jar {
             it.isDirectory() ? it : zipTree(it)
         }
     }
-    from sourceSets.main.allSource
+    from('src') { into 'backup/src' }
+    from('vendordeps') { into 'backup/vendordeps' }
+    from('build.gradle') { into 'backup' }
     manifest edu.wpi.first.gradlerio.GradleRIOPlugin.javaManifest(ROBOT_MAIN_CLASS)
     duplicatesStrategy = DuplicatesStrategy.INCLUDE
 }
@@ -131,7 +133,7 @@ tasks.withType(JavaCompile) {
 project.compileJava.dependsOn(createVersionFile)
 gversion {
     srcDir       = "src/main/java/"
-    classPackage = "frc.robot"
+    classPackage = "com.peninsula.frc2026.constants"
     className    = "BuildConstants"
     dateFormat   = "yyyy-MM-dd HH:mm:ss z"
     timeZone     = "America/Los_Angeles"
@@ -193,6 +195,28 @@ task spotlessDeploy {
     group = "team6036"
     dependsOn(tasks.spotlessApply, tasks.deploy)
     tasks.deploy.mustRunAfter(tasks.spotlessApply)
+}
+
+task spotlessSimulate {
+    group = "team6036"
+    dependsOn(tasks.spotlessApply, tasks.simulateJava)
+    tasks.simulateJava.mustRunAfter(tasks.spotlessApply)
+}
+
+task createSubsystem(type: JavaExec) {
+    group = "team6036"
+    classpath = sourceSets.test.runtimeClasspath
+    standardInput = System.in
+    mainClass = "CreateSubsystem"
+}
+
+task updateLimelightLibrary(type: JavaExec) {
+    group = "team6036"
+    classpath = sourceSets.test.runtimeClasspath
+    standardInput = System.in
+    mainClass = "UpdateLimelightLibrary"
+
+    finalizedBy spotlessBuild
 }
 
 wrapper {
