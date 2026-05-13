@@ -5,18 +5,32 @@
 package frc.robot;
 
 import edu.wpi.first.wpilibj.TimedRobot;
+import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import frc.robot.subsystems.swerve.SwerveIO;
+import frc.robot.subsystems.swerve.SwerveIOSim;
+import frc.robot.subsystems.swerve.SwerveSubsystem;
 
-public class Robot extends TimedRobot {
+public class CampRobot extends TimedRobot {
 
-  public Robot() {
+  private SwerveSubsystem swerve;
+
+  public CampRobot() {
     super(0.02);
   }
 
   @Override
-  public void robotInit() {}
+  public void robotInit() {
+    if (isReal()) {
+      swerve = new SwerveSubsystem(new SwerveIO());
+    } else {
+      swerve = new SwerveSubsystem(new SwerveIOSim());
+    }
+  }
 
   @Override
-  public void robotPeriodic() {}
+  public void robotPeriodic() {
+    CommandScheduler.getInstance().run();
+  }
 
   @Override
   public void autonomousInit() {}
@@ -46,5 +60,9 @@ public class Robot extends TimedRobot {
   public void simulationInit() {}
 
   @Override
-  public void simulationPeriodic() {}
+  public void simulationPeriodic() {
+    if (swerve != null) {
+      swerve.simulationPeriodic();
+    }
+  }
 }
