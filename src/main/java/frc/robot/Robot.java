@@ -44,9 +44,9 @@ public class Robot extends TimedRobot {
 
   @Override
   public void teleopPeriodic() {
-    double vx = -controller.getLeftY() * SwerveConstants.maxLinearSpeed;
-    double vy = -controller.getLeftX() * SwerveConstants.maxLinearSpeed;
-    double omega = -controller.getRightX() * SwerveConstants.maxAngularSpeed;
+    double vx = controller.getLeftY() * SwerveConstants.maxLinearSpeed;
+    double vy = controller.getLeftX() * SwerveConstants.maxLinearSpeed;
+    double omega = controller.getRightX() * SwerveConstants.maxAngularSpeed;
 
     swerve.driveFieldRelative(new ChassisSpeeds(vx, vy, omega));
   }

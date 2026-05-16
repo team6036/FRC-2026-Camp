@@ -5,6 +5,7 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.swerve.*;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.math.kinematics.SwerveModuleState;
 import frc.robot.constants.SwerveConstants;
 
 public class SwerveIO extends SwerveDrivetrain<TalonFX, TalonFX, CANcoder> {
@@ -12,6 +13,7 @@ public class SwerveIO extends SwerveDrivetrain<TalonFX, TalonFX, CANcoder> {
   public static class SwerveIOInputs {
     public Pose2d pose = new Pose2d();
     public ChassisSpeeds speeds = new ChassisSpeeds();
+    public SwerveModuleState[] moduleStates;
   }
 
   public SwerveIO() {
@@ -33,5 +35,6 @@ public class SwerveIO extends SwerveDrivetrain<TalonFX, TalonFX, CANcoder> {
 
     inputs.pose = state.Pose;
     inputs.speeds = state.Speeds;
+    inputs.moduleStates = state.ModuleStates;
   }
 }

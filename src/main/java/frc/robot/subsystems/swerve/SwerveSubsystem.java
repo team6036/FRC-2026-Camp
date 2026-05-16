@@ -50,6 +50,7 @@ public class SwerveSubsystem extends SubsystemBase {
   public void periodic() {
     io.updateInputs(inputs);
     Logger.log("Subsystems/Swerve/Pose", inputs.pose);
+    Logger.log("Subsystems/Swerve/SwerveModuleStates", inputs.moduleStates);
   }
 
   public void simulationPeriodic() {
