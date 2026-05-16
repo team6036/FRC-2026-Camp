@@ -21,7 +21,7 @@ public class SwerveSubsystem extends SubsystemBase {
           .withRotationalDeadband(
               SwerveConstants.maxAngularSpeed * SwerveConstants.joystickDeadband)
           .withDriveRequestType(SwerveModule.DriveRequestType.Velocity)
-          .withSteerRequestType(SwerveModule.SteerRequestType.MotionMagicExpo);
+          .withSteerRequestType(SwerveModule.SteerRequestType.Position);
 
   public SwerveSubsystem(SwerveIO io) {
     this.io = io;
@@ -53,9 +53,7 @@ public class SwerveSubsystem extends SubsystemBase {
   }
 
   public void simulationPeriodic() {
-    if (io instanceof SwerveIOSim sim) {
-      sim.updateSim();
-    }
+    io.updateSimState(0.02, 12.0);
   }
 
   public void stop() {

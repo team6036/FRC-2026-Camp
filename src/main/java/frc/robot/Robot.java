@@ -10,27 +10,22 @@ import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.constants.SwerveConstants;
 import frc.robot.subsystems.swerve.SwerveIO;
-import frc.robot.subsystems.swerve.SwerveIOSim;
 import frc.robot.subsystems.swerve.SwerveSubsystem;
 import frc.robot.util.Logger;
 
 public class Robot extends TimedRobot {
 
-  private SwerveSubsystem swerve;
+  private final SwerveSubsystem swerve;
   private final XboxController controller = new XboxController(0);
 
   public Robot() {
     super(0.02);
+    swerve = new SwerveSubsystem(new SwerveIO());
   }
 
   @Override
   public void robotInit() {
     Logger.init();
-    if (isReal()) {
-      swerve = new SwerveSubsystem(new SwerveIO());
-    } else {
-      swerve = new SwerveSubsystem(new SwerveIOSim());
-    }
   }
 
   @Override
@@ -75,8 +70,6 @@ public class Robot extends TimedRobot {
 
   @Override
   public void simulationPeriodic() {
-    if (swerve != null) {
-      swerve.simulationPeriodic();
-    }
+    swerve.simulationPeriodic();
   }
 }
