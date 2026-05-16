@@ -4,22 +4,28 @@
 
 package frc.robot;
 
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.TimedRobot;
+import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import frc.robot.constants.SwerveConstants;
 import frc.robot.subsystems.swerve.SwerveIO;
 import frc.robot.subsystems.swerve.SwerveIOSim;
 import frc.robot.subsystems.swerve.SwerveSubsystem;
+import frc.robot.util.Logger;
 
-public class CampRobot extends TimedRobot {
+public class Robot extends TimedRobot {
 
   private SwerveSubsystem swerve;
+  private final XboxController controller = new XboxController(0);
 
-  public CampRobot() {
+  public Robot() {
     super(0.02);
   }
 
   @Override
   public void robotInit() {
+    Logger.init();
     if (isReal()) {
       swerve = new SwerveSubsystem(new SwerveIO());
     } else {
@@ -42,13 +48,21 @@ public class CampRobot extends TimedRobot {
   public void teleopInit() {}
 
   @Override
-  public void teleopPeriodic() {}
+  public void teleopPeriodic() {
+    double vx = -controller.getLeftY() * SwerveConstants.maxLinearSpeed;
+    double vy = -controller.getLeftX() * SwerveConstants.maxLinearSpeed;
+    double omega = -controller.getRightX() * SwerveConstants.maxAngularSpeed;
+
+    swerve.driveFieldRelative(new ChassisSpeeds(vx, vy, omega));
+  }
 
   @Override
   public void disabledInit() {}
 
   @Override
-  public void disabledPeriodic() {}
+  public void disabledPeriodic() {
+    swerve.stop();
+  }
 
   @Override
   public void testInit() {}

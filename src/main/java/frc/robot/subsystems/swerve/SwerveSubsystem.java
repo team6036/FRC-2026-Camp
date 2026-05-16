@@ -1,9 +1,13 @@
 package frc.robot.subsystems.swerve;
 
+import com.ctre.phoenix6.swerve.SwerveModule;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.constants.RobotConstants;
+import frc.robot.constants.SwerveConstants;
 import frc.robot.subsystems.swerve.SwerveIO.SwerveIOInputs;
+import frc.robot.util.Logger;
 
 public class SwerveSubsystem extends SubsystemBase {
 
@@ -11,34 +15,50 @@ public class SwerveSubsystem extends SubsystemBase {
 
   private final SwerveIOInputs inputs = new SwerveIOInputs();
 
-  private final SwerveRequest.ApplyRobotSpeeds robotRelativeRequest =
-      new SwerveRequest.ApplyRobotSpeeds();
+  private final SwerveRequest.FieldCentric driveRequest =
+      new SwerveRequest.FieldCentric()
+          .withDeadband(SwerveConstants.maxLinearSpeed * SwerveConstants.joystickDeadband)
+          .withRotationalDeadband(
+              SwerveConstants.maxAngularSpeed * SwerveConstants.joystickDeadband)
+          .withDriveRequestType(SwerveModule.DriveRequestType.Velocity)
+          .withSteerRequestType(SwerveModule.SteerRequestType.MotionMagicExpo);
 
   public SwerveSubsystem(SwerveIO io) {
     this.io = io;
   }
 
-  @Override
-  public void periodic() {
+  public void driveFieldRelative(ChassisSpeeds speeds) {
+    double vx = speeds.vxMetersPerSecond;
+    double vy = speeds.vyMetersPerSecond;
+    double omega = speeds.omegaRadiansPerSecond;
+    if (RobotConstants.onBlue()) {
+      vx = -vx;
+      vy = -vy;
+    }
 
-    io.updateInputs(inputs);
+    double magnitude = Math.hypot(vx, vy);
+    if (magnitude > SwerveConstants.maxLinearSpeed) {
+      double scale = SwerveConstants.maxLinearSpeed / magnitude;
+      vx *= scale;
+      vy *= scale;
+    }
+
+    io.setControl(driveRequest.withVelocityX(vx).withVelocityY(vy).withRotationalRate(omega));
   }
 
-  public void driveRobotRelative(ChassisSpeeds speeds) {
-
-    io.setControl(robotRelativeRequest.withSpeeds(speeds));
+  @Override
+  public void periodic() {
+    io.updateInputs(inputs);
+    Logger.log("Subsystems/Swerve/Pose", inputs.pose);
   }
 
   public void simulationPeriodic() {
-
     if (io instanceof SwerveIOSim sim) {
-
       sim.updateSim();
     }
   }
 
   public void stop() {
-
-    driveRobotRelative(new ChassisSpeeds());
+    driveFieldRelative(new ChassisSpeeds());
   }
 }

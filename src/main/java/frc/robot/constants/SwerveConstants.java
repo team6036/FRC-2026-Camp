@@ -11,7 +11,7 @@ import java.util.List;
 
 public class SwerveConstants {
   /* CAN */
-  public static final CANBus bus = RobotConstants.swerve;
+  public static final CANBus bus = RobotConstants.rio;
 
   /* Drivetrain */
   public static final double wheelbaseMeters = Units.inchesToMeters(20.75);
@@ -48,7 +48,7 @@ public class SwerveConstants {
 
   public static final int[] driveIds = {1, 3, 5, 7};
   public static final int[] steerIds = {2, 4, 6, 8};
-  public static final int[] encoderIds = {1, 2, 3, 4};
+  public static final int[] encoderIds = {9, 10, 11, 12};
 
   public static final double steerGearRatio = 287d / 11; // MK5n
   public static final double driveGearRatio = 1d / ((14d / 54) * (32d / 25) * (15d / 30)); // MK5n
@@ -66,6 +66,7 @@ public class SwerveConstants {
           TalonFXConfiguration driveConfig,
           TalonFXConfiguration steerConfig,
           CANcoderConfiguration encoderConfig) {
+
     return new SwerveModuleConstants<
             TalonFXConfiguration, TalonFXConfiguration, CANcoderConfiguration>()
         .withDriveMotorId(driveIds[i])
@@ -73,8 +74,12 @@ public class SwerveConstants {
         .withEncoderId(encoderIds[i])
         .withDriveMotorGearRatio(driveGearRatio)
         .withSteerMotorGearRatio(steerGearRatio)
+        .withWheelRadius(wheelDiameterMeters / 2)
         .withLocationX(modulePositions[i].getX())
         .withLocationY(modulePositions[i].getY())
+        .withDriveMotorGains(driveConfig.Slot0)
+        .withSteerMotorGains(steerConfig.Slot0)
+        .withFeedbackSource(SwerveModuleConstants.SteerFeedbackType.RemoteCANcoder)
         .withDriveMotorInitialConfigs(driveConfig)
         .withSteerMotorInitialConfigs(steerConfig)
         .withEncoderInitialConfigs(encoderConfig);
@@ -102,19 +107,14 @@ public class SwerveConstants {
 
     if (RobotBase.isReal()) {
       config.Feedback.FeedbackRemoteSensorID = encoderId;
-      config.Feedback.RotorToSensorRatio = steerGearRatio;
-    } else {
-      config.Feedback.SensorToMechanismRatio = steerGearRatio;
     }
 
-    config.ClosedLoopGeneral.ContinuousWrap = true;
     return config;
   }
 
-  /** Build a drive motor configuration using the drive PID constants above. */
   private static TalonFXConfiguration getDriveConfiguration() {
-
     TalonFXConfiguration config = new TalonFXConfiguration();
+
     config.Slot0.kP = driveKP;
     config.Slot0.kI = driveKI;
     config.Slot0.kD = driveKD;
@@ -122,7 +122,6 @@ public class SwerveConstants {
     config.Slot0.kV = driveKV;
     config.Slot0.kA = driveKA;
     config.Slot0.kG = driveKG;
-    config.Feedback.SensorToMechanismRatio = driveGearRatio;
 
     return config;
   }
@@ -138,4 +137,9 @@ public class SwerveConstants {
 
   /* IMU */
   public static final int imuId = 50;
+
+  /* Limits */
+  public static final double maxLinearSpeed = 1d;
+  public static final double maxAngularSpeed = 2 * Math.PI;
+  public static final double joystickDeadband = 0.05;
 }
