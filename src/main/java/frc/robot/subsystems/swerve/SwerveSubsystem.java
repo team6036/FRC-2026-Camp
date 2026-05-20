@@ -2,10 +2,13 @@ package frc.robot.subsystems.swerve;
 
 import com.ctre.phoenix6.swerve.SwerveModule;
 import com.ctre.phoenix6.swerve.SwerveRequest;
+import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.constants.RobotConstants;
 import frc.robot.constants.SwerveConstants;
+import frc.robot.constants.VisionConstants;
 import frc.robot.subsystems.swerve.SwerveIO.SwerveIOInputs;
 import frc.robot.util.Logger;
 
@@ -14,6 +17,8 @@ public class SwerveSubsystem extends SubsystemBase {
   private final SwerveIO io;
 
   private final SwerveIOInputs inputs = new SwerveIOInputs();
+
+  public final SwerveDrivePoseEstimator poseEstimator;
 
   private final SwerveRequest.FieldCentric driveRequest =
       new SwerveRequest.FieldCentric()
@@ -25,6 +30,14 @@ public class SwerveSubsystem extends SubsystemBase {
 
   public SwerveSubsystem(SwerveIO io) {
     this.io = io;
+    poseEstimator =
+        new SwerveDrivePoseEstimator(
+            SwerveConstants.kinematics,
+            io.getPigeon2().getRotation2d(),
+            io.getState().ModulePositions,
+            Pose2d.kZero,
+            SwerveConstants.stateStDev,
+            VisionConstants.visionStDev);
   }
 
   public void driveFieldRelative(ChassisSpeeds speeds) {
@@ -49,8 +62,18 @@ public class SwerveSubsystem extends SubsystemBase {
   @Override
   public void periodic() {
     io.updateInputs(inputs);
-    Logger.log("Subsystems/Swerve/Pose", inputs.pose);
+    poseEstimator.update(io.getPigeon2().getRotation2d(), io.getState().ModulePositions);
+
+    Logger.log("Subsystems/Swerve/Pose", poseEstimator.getEstimatedPosition());
     Logger.log("Subsystems/Swerve/SwerveModuleStates", inputs.moduleStates);
+  }
+
+  public void addVisionMeasurement(Pose2d pose, double timestamp) {
+    poseEstimator.addVisionMeasurement(pose, timestamp);
+  }
+
+  public Pose2d getPose() {
+    return poseEstimator.getEstimatedPosition();
   }
 
   public void simulationPeriodic() {

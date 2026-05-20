@@ -44,7 +44,7 @@ public class VisionIO {
     }
 
     if (latestPnPResult != null) {
-      inputs.hasMeasurement = true;
+      inputs.hasMeasurement = latestTimestamp != inputs.timestamp;
       inputs.timestamp = latestTimestamp;
       inputs.robotPose =
           new Pose2d(
@@ -69,7 +69,7 @@ public class VisionIO {
                       Math.toRadians(target.yaw),
                       inputs.robotPose),
                   inputs.robotPose.getRotation());
-          inputs.targets.add(new Piece(target, targetPose));
+          inputs.targets.add(new Piece(target, targetPose, result.captureTimestamp));
         }
       }
     }
