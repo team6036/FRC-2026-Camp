@@ -2,9 +2,10 @@ package frc.robot.subsystems.swerve;
 
 import com.ctre.phoenix6.swerve.SwerveModule;
 import com.ctre.phoenix6.swerve.SwerveRequest;
-import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.interpolation.TimeInterpolatableBuffer;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.constants.RobotConstants;
 import frc.robot.constants.SwerveConstants;
@@ -18,7 +19,8 @@ public class SwerveSubsystem extends SubsystemBase {
 
   private final SwerveIOInputs inputs = new SwerveIOInputs();
 
-  public final SwerveDrivePoseEstimator poseEstimator;
+  private final TimeInterpolatableBuffer<Pose2d> poseBuffer =
+      TimeInterpolatableBuffer.createBuffer(VisionConstants.pieceStaleTime);
 
   private final SwerveRequest.FieldCentric driveRequest =
       new SwerveRequest.FieldCentric()
@@ -30,14 +32,6 @@ public class SwerveSubsystem extends SubsystemBase {
 
   public SwerveSubsystem(SwerveIO io) {
     this.io = io;
-    poseEstimator =
-        new SwerveDrivePoseEstimator(
-            SwerveConstants.kinematics,
-            io.getPigeon2().getRotation2d(),
-            io.getState().ModulePositions,
-            Pose2d.kZero,
-            SwerveConstants.stateStDev,
-            VisionConstants.visionStDev);
   }
 
   public void driveFieldRelative(ChassisSpeeds speeds) {
@@ -59,21 +53,21 @@ public class SwerveSubsystem extends SubsystemBase {
     io.setControl(driveRequest.withVelocityX(vx).withVelocityY(vy).withRotationalRate(omega));
   }
 
+  public Pose2d getPose() {
+    return inputs.pose;
+  }
+
+  public TimeInterpolatableBuffer<Pose2d> getPoseBuffer() {
+    return poseBuffer;
+  }
+
   @Override
   public void periodic() {
     io.updateInputs(inputs);
-    poseEstimator.update(io.getPigeon2().getRotation2d(), io.getState().ModulePositions);
+    poseBuffer.addSample(Timer.getFPGATimestamp(), inputs.pose);
 
-    Logger.log("Subsystems/Swerve/Pose", poseEstimator.getEstimatedPosition());
     Logger.log("Subsystems/Swerve/SwerveModuleStates", inputs.moduleStates);
-  }
-
-  public void addVisionMeasurement(Pose2d pose, double timestamp) {
-    poseEstimator.addVisionMeasurement(pose, timestamp);
-  }
-
-  public Pose2d getPose() {
-    return poseEstimator.getEstimatedPosition();
+    Logger.log("Subsystems/Swerve/Pose", inputs.pose);
   }
 
   public void simulationPeriodic() {

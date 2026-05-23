@@ -1,65 +1,42 @@
-package frc.robot.subsystems.vision;
+package frc.robot.subsystems.visionfuel;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
+import edu.wpi.first.math.interpolation.TimeInterpolatableBuffer;
 import edu.wpi.first.wpilibj.Timer;
 import frc.robot.constants.VisionConstants;
-import frc.robot.constants.VisionConstants.CameraConfiguration;
 import frc.robot.constants.VisionConstants.Piece;
 import frc.robot.util.DartCamera;
 import java.util.ArrayList;
 import java.util.List;
 
-public class VisionIO {
+public class VisionFuelIO {
 
-  private final CameraConfiguration configuration;
   private final DartCamera camera;
+  private final TimeInterpolatableBuffer<Pose2d> robotPoseBuffer;
 
-  public static class VisionIOInputs {
-    public boolean hasMeasurement = false;
-    public Pose2d robotPose = new Pose2d();
-    public double timestamp = 0d;
-
+  public static class VisionFuelInputs {
     public List<Piece> targets = new ArrayList<>();
   }
 
-  public VisionIO(CameraConfiguration configuration) {
-    this.configuration = configuration;
-    this.camera = new DartCamera(configuration.name);
+  public VisionFuelIO(TimeInterpolatableBuffer<Pose2d> robotPoseBuffer) {
+    this.camera = new DartCamera(VisionConstants.camera.name);
+    this.robotPoseBuffer = robotPoseBuffer;
   }
 
-  public void updateInputs(VisionIOInputs inputs) {
-    List<DartCamera.AprilTagResult> aprilTagResults = camera.aprilTag3d().readAprilTagResults();
-
-    DartCamera.PnPResult latestPnPResult = null;
-    double latestTimestamp = -1;
-
-    for (DartCamera.AprilTagResult result : aprilTagResults) {
-      if (result.numPnpResults > 0 && result.captureTimestamp > latestTimestamp) {
-        latestTimestamp = result.captureTimestamp;
-        latestPnPResult = result.pnpResults[0];
-      }
-    }
-
-    if (latestPnPResult != null) {
-      inputs.hasMeasurement = latestTimestamp != inputs.timestamp;
-      inputs.timestamp = latestTimestamp;
-      inputs.robotPose =
-          new Pose2d(
-              latestPnPResult.pose.getTranslation().toTranslation2d(),
-              latestPnPResult.pose.getRotation().toRotation2d());
-    } else {
-      inputs.hasMeasurement = false;
-    }
+  public void updateInputs(VisionFuelInputs inputs) {
+    double now = Timer.getFPGATimestamp();
 
     List<DartCamera.ColorResult> colorResults = camera.colorThreshold().readColorResults();
     inputs.targets.clear();
 
-    double currentTime = Timer.getFPGATimestamp();
     for (DartCamera.ColorResult result : colorResults) {
-      if (currentTime - result.captureTimestamp < VisionConstants.pieceStaleTime) {
+      if (now - result.captureTimestamp < VisionConstants.pieceStaleTime) {
+        final Pose2d robotPoseAtCapture =
+            robotPoseBuffer.getSample(result.captureTimestamp).orElse(Pose2d.kZero);
+
         for (DartCamera.ColorTarget target : result.targets) {
           Pose2d targetPose =
               new Pose2d(
@@ -67,8 +44,9 @@ public class VisionIO {
                       VisionConstants.pieceHeight,
                       Math.toRadians(target.pitch),
                       Math.toRadians(target.yaw),
-                      inputs.robotPose),
-                  inputs.robotPose.getRotation());
+                      robotPoseAtCapture),
+                  robotPoseAtCapture.getRotation());
+
           inputs.targets.add(new Piece(target, targetPose, result.captureTimestamp));
         }
       }
@@ -79,19 +57,19 @@ public class VisionIO {
       double pieceHeight, double pitchRadians, double yawRadians, Pose2d robotPose) {
     Translation3d cameraToDetection3dNorm =
         new Translation3d(1, new Rotation3d(0, -pitchRadians, -yawRadians))
-            .rotateBy(this.configuration.robotToCamera.getRotation());
+            .rotateBy(VisionConstants.camera.robotToCamera.getRotation());
     Translation2d cameraToDetection =
         cameraToDetection3dNorm
             .toTranslation2d()
             .times(
-                -(this.configuration.robotToCamera.getZ() - pieceHeight)
+                -(VisionConstants.camera.robotToCamera.getZ() - pieceHeight)
                     / cameraToDetection3dNorm.getZ())
             .rotateBy(robotPose.getRotation());
     Translation2d fieldToCamera =
         robotPose
             .getTranslation()
             .plus(
-                this.configuration
+                VisionConstants.camera
                     .robotToCamera
                     .getTranslation()
                     .toTranslation2d()

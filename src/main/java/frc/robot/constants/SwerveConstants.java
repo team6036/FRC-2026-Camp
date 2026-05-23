@@ -7,7 +7,6 @@ import com.ctre.phoenix6.swerve.SwerveModuleConstants;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.util.Units;
@@ -142,10 +141,6 @@ public class SwerveConstants {
 
   /* Pose Estimator */
   public static final Matrix<N3, N1> stateStDev = VecBuilder.fill(0.1, 0.1, 0.05);
-
-  /* Kinematics Reference */
-  public static final SwerveDriveKinematics kinematics =
-      new SwerveDriveKinematics(moduleTranslations);
 
   /* IMU */
   public static final int imuId = 50;

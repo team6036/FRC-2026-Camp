@@ -1,7 +1,5 @@
 package frc.robot.constants;
 
-import edu.wpi.first.apriltag.AprilTagFieldLayout;
-import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -12,10 +10,6 @@ import edu.wpi.first.math.util.Units;
 import frc.robot.util.DartCamera;
 
 public class VisionConstants {
-  /* Field Layout */
-  public static final AprilTagFieldLayout layout =
-      AprilTagFieldLayout.loadField(AprilTagFields.k2026RebuiltWelded);
-
   /* Pose Estimator */
   public static final Matrix<N3, N1> visionStDev =
       VecBuilder.fill(0.1, 0.1, Units.degreesToRadians(6));
