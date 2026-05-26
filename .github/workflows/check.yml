@@ -1,0 +1,17 @@
+name: Check
+
+on:
+  push:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v4
+      - name: Check for printing
+        run: |
+          QUERY_PRINTING="System\\.out\\.println"
+          if [ -n "$(grep -r "$QUERY_PRINTING" "src/main/java/com/peninsula")" ]; then
+            exit 1;
+          fi
