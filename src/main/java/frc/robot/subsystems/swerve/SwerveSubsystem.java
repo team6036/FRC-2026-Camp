@@ -2,10 +2,14 @@ package frc.robot.subsystems.swerve;
 
 import com.ctre.phoenix6.swerve.SwerveModule;
 import com.ctre.phoenix6.swerve.SwerveRequest;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.interpolation.TimeInterpolatableBuffer;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.constants.RobotConstants;
 import frc.robot.constants.SwerveConstants;
+import frc.robot.constants.VisionConstants;
 import frc.robot.subsystems.swerve.SwerveIO.SwerveIOInputs;
 import frc.robot.util.Logger;
 
@@ -14,6 +18,9 @@ public class SwerveSubsystem extends SubsystemBase {
   private final SwerveIO io;
 
   private final SwerveIOInputs inputs = new SwerveIOInputs();
+
+  private final TimeInterpolatableBuffer<Pose2d> poseBuffer =
+      TimeInterpolatableBuffer.createBuffer(VisionConstants.pieceStaleTime);
 
   private final SwerveRequest.FieldCentric driveRequest =
       new SwerveRequest.FieldCentric()
@@ -46,11 +53,21 @@ public class SwerveSubsystem extends SubsystemBase {
     io.setControl(driveRequest.withVelocityX(vx).withVelocityY(vy).withRotationalRate(omega));
   }
 
+  public Pose2d getPose() {
+    return inputs.pose;
+  }
+
+  public TimeInterpolatableBuffer<Pose2d> getPoseBuffer() {
+    return poseBuffer;
+  }
+
   @Override
   public void periodic() {
     io.updateInputs(inputs);
-    Logger.log("Subsystems/Swerve/Pose", inputs.pose);
+    poseBuffer.addSample(Timer.getFPGATimestamp(), inputs.pose);
+
     Logger.log("Subsystems/Swerve/SwerveModuleStates", inputs.moduleStates);
+    Logger.log("Subsystems/Swerve/Pose", inputs.pose);
   }
 
   public void simulationPeriodic() {

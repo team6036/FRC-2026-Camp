@@ -4,7 +4,11 @@ import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants;
+import edu.wpi.first.math.Matrix;
+import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.numbers.N1;
+import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.RobotBase;
 import java.util.List;
@@ -21,7 +25,7 @@ public class SwerveConstants {
   public static final double moduleOffsetX = wheelbaseMeters / 2;
   public static final double moduleOffsetY = trackWidthMeters / 2;
 
-  public static Translation2d[] modulePositions = {
+  public static Translation2d[] moduleTranslations = {
     new Translation2d(moduleOffsetX, moduleOffsetY), // Front Left
     new Translation2d(moduleOffsetX, -moduleOffsetY), // Front Right
     new Translation2d(-moduleOffsetX, moduleOffsetY), // Back Left
@@ -75,8 +79,8 @@ public class SwerveConstants {
         .withDriveMotorGearRatio(driveGearRatio)
         .withSteerMotorGearRatio(steerGearRatio)
         .withWheelRadius(wheelDiameterMeters / 2)
-        .withLocationX(modulePositions[i].getX())
-        .withLocationY(modulePositions[i].getY())
+        .withLocationX(moduleTranslations[i].getX())
+        .withLocationY(moduleTranslations[i].getY())
         .withDriveMotorGains(driveConfig.Slot0)
         .withSteerMotorGains(steerConfig.Slot0)
         .withFeedbackSource(SwerveModuleConstants.SteerFeedbackType.RemoteCANcoder)
@@ -134,6 +138,9 @@ public class SwerveConstants {
               createModuleConstants(1),
               createModuleConstants(2),
               createModuleConstants(3));
+
+  /* Pose Estimator */
+  public static final Matrix<N3, N1> stateStDev = VecBuilder.fill(0.1, 0.1, 0.05);
 
   /* IMU */
   public static final int imuId = 50;
