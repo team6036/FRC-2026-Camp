@@ -41,7 +41,7 @@ public class SwerveIO extends SwerveDrivetrain<TalonFX, TalonFX, CANcoder> {
   }
 
   public void updateInputs(SwerveIOInputs inputs) {
-    List<DartCamera.AprilTagResult> aprilTagResults = camera.aprilTag3d().readAprilTagResults();
+    List<DartCamera.AprilTagResult> aprilTagResults = camera.readAprilTagResults();
     DartCamera.PnPResult latestPnPResult = null;
     double latestTimestamp = -1;
     for (DartCamera.AprilTagResult result : aprilTagResults) {

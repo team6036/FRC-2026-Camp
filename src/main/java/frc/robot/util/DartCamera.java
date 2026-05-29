@@ -5,11 +5,16 @@ import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.networktables.*;
-import java.util.HashMap;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
+import java.util.function.Function;
 
-/** Robot-side helper for Dart cameras. */
+/**
+ * Robot-side helper for Dart cameras.
+ *
+ * <p>Wraps NetworkTables topics under {@code /Dartboard/<cameraName>} and provides helpers for
+ * reading/decoding pipeline result payloads published as {@code double[]} arrays.
+ */
 public class DartCamera {
   public static final String GLOBAL_TABLE_NAME = "/Dartboard";
   public static final NetworkTable GLOBAL_TABLE =
@@ -21,7 +26,9 @@ public class DartCamera {
   public final IntegerSubscriber heartbeatSub;
   public final DoubleSubscriber captureFpsSub;
 
-  private final Map<String, PipelineStream> pipelines = new HashMap<>();
+  private final PipelineStream<AprilTagResult> aprilTagPipeline;
+  private final PipelineStream<ObjectDetectionResult> objectDetectionPipeline;
+  private final PipelineStream<ColorResult> colorPipeline;
 
   public DartCamera(String name) {
     this.name = name;
@@ -29,23 +36,15 @@ public class DartCamera {
     this.cameraIdSub = table.getStringTopic("camera_id").subscribe("-1");
     this.heartbeatSub = table.getIntegerTopic("heartbeat").subscribe(-1);
     this.captureFpsSub = table.getDoubleTopic("capture_fps").subscribe(-1.0);
-  }
 
-  public PipelineStream getPipeline(String pipelineName) {
-    return pipelines.computeIfAbsent(
-        pipelineName, p -> new PipelineStream(table.getSubTable("pipelines").getSubTable(p)));
-  }
-
-  public PipelineStream aprilTag3d() {
-    return getPipeline("apriltag3d");
-  }
-
-  public PipelineStream model() {
-    return getPipeline("model");
-  }
-
-  public PipelineStream colorThreshold() {
-    return getPipeline("threshold");
+    NetworkTable pipelinesTable = table.getSubTable("pipelines");
+    this.aprilTagPipeline =
+        new PipelineStream<>(pipelinesTable.getSubTable("apriltag3d"), AprilTagResult::fromPayload);
+    this.objectDetectionPipeline =
+        new PipelineStream<>(
+            pipelinesTable.getSubTable("model"), ObjectDetectionResult::fromPayload);
+    this.colorPipeline =
+        new PipelineStream<>(pipelinesTable.getSubTable("threshold"), ColorResult::fromPayload);
   }
 
   public String getCameraId() {
@@ -64,7 +63,19 @@ public class DartCamera {
     return getHeartbeat() >= 0;
   }
 
-  public static Pose3d readPoseRads(double[] data, int offset) {
+  public List<AprilTagResult> readAprilTagResults() {
+    return aprilTagPipeline.readResults();
+  }
+
+  public List<ObjectDetectionResult> readObjectDetectionResults() {
+    return objectDetectionPipeline.readResults();
+  }
+
+  public List<ColorResult> readColorResults() {
+    return colorPipeline.readResults();
+  }
+
+  public static Pose3d readPose(double[] data, int offset) {
     if (data == null || data.length < offset + 6) {
       return new Pose3d();
     }
@@ -74,55 +85,26 @@ public class DartCamera {
         new Rotation3d(data[offset + 3], data[offset + 4], data[offset + 5]));
   }
 
-  public static final class PipelineStream {
-    public final NetworkTable table;
-    public final DoubleArraySubscriber resultsSub;
-    public final DoubleSubscriber fpsSub;
+  /** NetworkTables accessor for a pipeline under {@code /pipelines/<pipelineName>}. */
+  private static final class PipelineStream<R extends BaseResult> {
+    private final DoubleArraySubscriber resultsSub;
+    private final DoubleSubscriber fpsSub;
+    private final Function<double[], R> decoder;
 
-    public PipelineStream(NetworkTable table) {
-      this.table = table;
+    public PipelineStream(NetworkTable table, Function<double[], R> decoder) {
       this.resultsSub = table.getDoubleArrayTopic("results").subscribe(new double[0]);
       this.fpsSub = table.getDoubleTopic("fps").subscribe(-1.0);
+      this.decoder = decoder;
     }
 
     public double getFps() {
       return fpsSub.get();
     }
 
-    public double[] getLatestResults() {
-      return resultsSub.get();
-    }
-
-    public TimestampedDoubleArray[] readResultsQueue() {
-      return resultsSub.readQueue();
-    }
-
-    public List<AprilTagResult> readAprilTagResults() {
-      java.util.List<AprilTagResult> results = new java.util.ArrayList<>();
-      for (TimestampedDoubleArray entry : readResultsQueue()) {
-        AprilTagResult result = AprilTagResult.fromPayload(entry.value);
-        if (result != null) {
-          results.add(result);
-        }
-      }
-      return results;
-    }
-
-    public List<ObjectDetectionResult> readObjectDetectionResults() {
-      java.util.List<ObjectDetectionResult> results = new java.util.ArrayList<>();
-      for (TimestampedDoubleArray entry : readResultsQueue()) {
-        ObjectDetectionResult result = ObjectDetectionResult.fromPayload(entry.value);
-        if (result != null) {
-          results.add(result);
-        }
-      }
-      return results;
-    }
-
-    public List<ColorResult> readColorResults() {
-      java.util.List<ColorResult> results = new java.util.ArrayList<>();
-      for (TimestampedDoubleArray entry : readResultsQueue()) {
-        ColorResult result = ColorResult.fromPayload(entry.value);
+    public List<R> readResults() {
+      var results = new ArrayList<R>();
+      for (var entry : resultsSub.readQueue()) {
+        var result = decoder.apply(entry.value);
         if (result != null) {
           results.add(result);
         }
@@ -131,6 +113,7 @@ public class DartCamera {
     }
   }
 
+  /** Base type for a detected target (id, yaw/pitch relative to camera). */
   public abstract static class BaseTarget {
     public final int id;
     public final double yaw;
@@ -143,6 +126,7 @@ public class DartCamera {
     }
   }
 
+  /** A single AprilTag target, including a 3D tag to camera transform. */
   public static final class AprilTagTarget extends BaseTarget {
     public final Transform3d tagToCamera;
 
@@ -151,6 +135,23 @@ public class DartCamera {
       this.tagToCamera = tagToCamera;
     }
 
+    /**
+     * Decodes one AprilTag target starting at {@code offset}.
+     *
+     * <p>Payload layout (9 doubles):
+     *
+     * <pre>
+     * [0] id
+     * [1] yawRad
+     * [2] pitchRad
+     * [3] rotXRad (tag->camera)
+     * [4] rotYRad
+     * [5] rotZRad
+     * [6] transX_m (tag->camera)
+     * [7] transY_m
+     * [8] transZ_m
+     * </pre>
+     */
     public static AprilTagTarget fromPayload(double[] payload, int offset) {
       if (payload == null || payload.length < offset + 9) {
         return null;
@@ -167,6 +168,7 @@ public class DartCamera {
     }
   }
 
+  /** A single ML/object-detection target, including a confidence score. */
   public static final class ObjectDetectionTarget extends BaseTarget {
     public final float confidence;
 
@@ -175,6 +177,18 @@ public class DartCamera {
       this.confidence = confidence;
     }
 
+    /**
+     * Decodes one object-detection target starting at {@code offset}.
+     *
+     * <p>Payload layout (4 doubles):
+     *
+     * <pre>
+     * [0] classId
+     * [1] yawRad
+     * [2] pitchRad
+     * [3] confidence
+     * </pre>
+     */
     public static ObjectDetectionTarget fromPayload(double[] payload, int offset) {
       if (payload == null || payload.length < offset + 4) {
         return null;
@@ -188,6 +202,7 @@ public class DartCamera {
     }
   }
 
+  /** A single threshold/color target, including an area metric. */
   public static final class ColorTarget extends BaseTarget {
     public final double area;
 
@@ -196,6 +211,18 @@ public class DartCamera {
       this.area = area;
     }
 
+    /**
+     * Decodes one color target starting at {@code offset}.
+     *
+     * <p>Payload layout (4 doubles):
+     *
+     * <pre>
+     * [0] id
+     * [1] yawRad
+     * [2] pitchRad
+     * [3] area
+     * </pre>
+     */
     public static ColorTarget fromPayload(double[] payload, int offset) {
       if (payload == null || payload.length < offset + 4) {
         return null;
@@ -209,6 +236,7 @@ public class DartCamera {
     }
   }
 
+  /** A PnP solve output (pose + error). */
   public static final class PnPResult {
     public final Pose3d pose;
     public final double error;
@@ -218,6 +246,21 @@ public class DartCamera {
       this.error = error;
     }
 
+    /**
+     * Decodes one PnP result starting at {@code offset}.
+     *
+     * <p>Payload layout (7 doubles):
+     *
+     * <pre>
+     * [0] poseX_m
+     * [1] poseY_m
+     * [2] poseZ_m
+     * [3] rotXRad
+     * [4] rotYRad
+     * [5] rotZRad
+     * [6] error
+     * </pre>
+     */
     public static PnPResult fromPayload(double[] payload, int offset) {
       if (payload == null || payload.length < offset + 7) {
         return null;
@@ -230,6 +273,7 @@ public class DartCamera {
     }
   }
 
+  /** Base type for a decoded pipeline result (one frame): timestamp + targets + raw payload. */
   public abstract static class BaseResult {
     public final double captureTimestamp;
     public final int numTargets;
@@ -244,6 +288,7 @@ public class DartCamera {
     }
   }
 
+  /** Decoded result for the AprilTag pipeline. */
   public static final class AprilTagResult extends BaseResult {
     public final AprilTagTarget[] targets;
     public final int numPnpResults;
@@ -262,6 +307,19 @@ public class DartCamera {
       this.pnpResults = pnpResults;
     }
 
+    /**
+     * Decodes an AprilTag payload into an {@link AprilTagResult}.
+     *
+     * <p>Expected shape:
+     *
+     * <ul>
+     *   <li>{@code [captureTimestamp, numTargets, ...targets..., (optional) numPnP, ...pnp...]}
+     *   <li>Each AprilTag target consumes 9 doubles.
+     *   <li>Each PnP result consumes 7 doubles.
+     * </ul>
+     *
+     * <p>If the payload is null or too short to contain even the header, returns {@code null}.
+     */
     public static AprilTagResult fromPayload(double[] payload) {
       if (payload == null || payload.length <= 3) {
         return null;
@@ -293,6 +351,7 @@ public class DartCamera {
     }
   }
 
+  /** Decoded result for the object detection pipeline. */
   public static final class ObjectDetectionResult extends BaseResult {
     public final ObjectDetectionTarget[] targets;
 
@@ -302,8 +361,20 @@ public class DartCamera {
       this.targets = targets;
     }
 
+    /**
+     * Decodes an object detection payload into an {@link ObjectDetectionResult}.
+     *
+     * <p>Expected shape:
+     *
+     * <ul>
+     *   <li>{@code [captureTimestamp, numTargets, ...targets...]}
+     *   <li>Each target consumes 4 doubles.
+     * </ul>
+     *
+     * <p>If the payload is null/too short to contain even the header, returns {@code null}.
+     */
     public static ObjectDetectionResult fromPayload(double[] payload) {
-      if (payload == null || payload.length <= 3) {
+      if (payload == null || payload.length <= 2) {
         return null;
       }
 
@@ -321,6 +392,7 @@ public class DartCamera {
     }
   }
 
+  /** Decoded result for the color pipeline. */
   public static final class ColorResult extends BaseResult {
     public final ColorTarget[] targets;
 
@@ -330,8 +402,20 @@ public class DartCamera {
       this.targets = targets;
     }
 
+    /**
+     * Decodes a color payload into a {@link ColorResult}.
+     *
+     * <p>Expected shape (high level):
+     *
+     * <ul>
+     *   <li>{@code [captureTimestamp, numTargets, ...targets...]}
+     *   <li>Each target consumes 4 doubles.
+     * </ul>
+     *
+     * <p>If the payload is null/too short to contain even the header, returns {@code null}.
+     */
     public static ColorResult fromPayload(double[] payload) {
-      if (payload == null || payload.length <= 3) {
+      if (payload == null || payload.length <= 2) {
         return null;
       }
 

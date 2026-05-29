@@ -29,7 +29,7 @@ public class VisionFuelIO {
   public void updateInputs(VisionFuelInputs inputs) {
     double now = Timer.getFPGATimestamp();
 
-    List<DartCamera.ColorResult> colorResults = camera.colorThreshold().readColorResults();
+    List<DartCamera.ColorResult> colorResults = camera.readColorResults();
     inputs.targets.clear();
 
     for (DartCamera.ColorResult result : colorResults) {
