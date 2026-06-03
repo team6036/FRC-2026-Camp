@@ -50,8 +50,8 @@ public class SwerveConstants {
   public static final double driveKA = 0.0331076786;
   public static final double driveKG = 0;
 
-  public static final int[] driveIds = {1, 3, 5, 7};
-  public static final int[] steerIds = {2, 4, 6, 8};
+  public static final int[] steerIds = {1, 3, 5, 7};
+  public static final int[] driveIds = {2, 4, 6, 8};
   public static final int[] encoderIds = {9, 10, 11, 12};
 
   public static final double steerGearRatio = 287d / 11; // MK5n
@@ -59,17 +59,14 @@ public class SwerveConstants {
   public static final double wheelDiameterMeters = 0.049782 * 2;
   public static final double wheelCircumferenceMeters = wheelDiameterMeters * Math.PI;
 
-  /**
-   * Create module constants using explicit motor/encoder configuration objects. This variant lets
-   * callers provide tuned gain/config objects per-module.
-   */
+  public static final double[] encoderOffsets = {0d, 0d, 0d, 0d};
+
   private static SwerveModuleConstants<
           TalonFXConfiguration, TalonFXConfiguration, CANcoderConfiguration>
-      createModuleConstants(
-          int i,
-          TalonFXConfiguration driveConfig,
-          TalonFXConfiguration steerConfig,
-          CANcoderConfiguration encoderConfig) {
+      createModuleConstants(int i) {
+    TalonFXConfiguration driveConfig = getDriveConfiguration();
+    TalonFXConfiguration steerConfig = getSteerConfiguration(encoderIds[i]);
+    CANcoderConfiguration encoderConfig = new CANcoderConfiguration();
 
     return new SwerveModuleConstants<
             TalonFXConfiguration, TalonFXConfiguration, CANcoderConfiguration>()
@@ -83,19 +80,11 @@ public class SwerveConstants {
         .withLocationY(moduleTranslations[i].getY())
         .withDriveMotorGains(driveConfig.Slot0)
         .withSteerMotorGains(steerConfig.Slot0)
+        .withEncoderOffset(encoderOffsets[i])
         .withFeedbackSource(SwerveModuleConstants.SteerFeedbackType.RemoteCANcoder)
         .withDriveMotorInitialConfigs(driveConfig)
         .withSteerMotorInitialConfigs(steerConfig)
         .withEncoderInitialConfigs(encoderConfig);
-  }
-
-  private static SwerveModuleConstants<
-          TalonFXConfiguration, TalonFXConfiguration, CANcoderConfiguration>
-      createModuleConstants(int i) {
-    TalonFXConfiguration driveConfig = getDriveConfiguration();
-    TalonFXConfiguration steerConfig = getSteerConfiguration(encoderIds[i]);
-    CANcoderConfiguration encoderConfig = new CANcoderConfiguration();
-    return createModuleConstants(i, driveConfig, steerConfig, encoderConfig);
   }
 
   private static TalonFXConfiguration getSteerConfiguration(int encoderId) {

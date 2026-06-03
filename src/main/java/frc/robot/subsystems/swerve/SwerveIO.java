@@ -51,8 +51,7 @@ public class SwerveIO extends SwerveDrivetrain<TalonFX, TalonFX, CANcoder> {
       }
     }
     if (latestPnPResult != null && latestTimestamp > lastProcessedTimestamp) {
-      this.addVisionMeasurement(
-          latestPnPResult.pose.toPose2d(), latestTimestamp, VisionConstants.visionStDev);
+      this.addVisionMeasurement(latestPnPResult.pose.toPose2d(), latestTimestamp);
       lastProcessedTimestamp = latestTimestamp;
     }
 
