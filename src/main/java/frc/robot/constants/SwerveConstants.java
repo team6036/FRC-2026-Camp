@@ -33,7 +33,7 @@ public class SwerveConstants {
   };
 
   /* Steer Motor PID Values */
-  public static final double steerKP = 0;
+  public static final double steerKP = 50;
   public static final double steerKI = 0;
   public static final double steerKD = 0;
   public static final double steerKS = 0;
@@ -42,13 +42,13 @@ public class SwerveConstants {
   public static final double steerKG = 0;
 
   /* Drive Motor PID Values */
-  public static final double driveKP = 0;
+  public static final double driveKP = 0.05;
   //  public static final double driveKP = 0.9993214286;
   public static final double driveKI = 0;
   public static final double driveKD = 0;
   public static final double driveKS = 0;
   //  public static final double driveKS = 0.19528;
-  public static final double driveKV = 0;
+  public static final double driveKV = 0.15;
   //  public static final double driveKV = 0.6474107143;
   public static final double driveKA = 0;
   //  public static final double driveKA = 0.0331076786;
@@ -145,6 +145,6 @@ public class SwerveConstants {
 
   /* Limits */
   public static final double maxLinearSpeed = 1d;
-  public static final double maxAngularSpeed = 0;
+  public static final double maxAngularSpeed = Math.PI / 2;
   public static final double joystickDeadband = 0.05;
 }

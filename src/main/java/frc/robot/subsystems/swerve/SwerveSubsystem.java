@@ -16,7 +16,6 @@ import frc.robot.util.Logger;
 public class SwerveSubsystem extends SubsystemBase {
 
   private final SwerveIO io;
-
   private final SwerveIOInputs inputs = new SwerveIOInputs();
 
   private final TimeInterpolatableBuffer<Pose2d> poseBuffer =
@@ -29,6 +28,8 @@ public class SwerveSubsystem extends SubsystemBase {
               SwerveConstants.maxAngularSpeed * SwerveConstants.joystickDeadband)
           .withDriveRequestType(SwerveModule.DriveRequestType.Velocity)
           .withSteerRequestType(SwerveModule.SteerRequestType.Position);
+
+  private ChassisSpeeds targetSpeeds = new ChassisSpeeds();
 
   public SwerveSubsystem(SwerveIO io) {
     this.io = io;
@@ -50,6 +51,9 @@ public class SwerveSubsystem extends SubsystemBase {
       vy *= scale;
     }
 
+    targetSpeeds = new ChassisSpeeds(vx, vy, omega);
+    Logger.log("Subsystems/Swerve/Speeds/Target", targetSpeeds);
+
     io.setControl(driveRequest.withVelocityX(vx).withVelocityY(vy).withRotationalRate(omega));
   }
 
@@ -68,6 +72,7 @@ public class SwerveSubsystem extends SubsystemBase {
 
     Logger.log("Subsystems/Swerve/SwerveModuleStates", inputs.moduleStates);
     Logger.log("Subsystems/Swerve/Pose", inputs.pose);
+    Logger.log("Subsystems/Swerve/Speeds/Actual", inputs.speeds);
   }
 
   public void simulationPeriodic() {
