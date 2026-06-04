@@ -9,7 +9,6 @@ import edu.wpi.first.math.kinematics.SwerveModuleState;
 import frc.robot.constants.SwerveConstants;
 import frc.robot.constants.VisionConstants;
 import frc.robot.util.DartCamera;
-import java.util.List;
 
 public class SwerveIO extends SwerveDrivetrain<TalonFX, TalonFX, CANcoder> {
 
@@ -41,20 +40,20 @@ public class SwerveIO extends SwerveDrivetrain<TalonFX, TalonFX, CANcoder> {
   }
 
   public void updateInputs(SwerveIOInputs inputs) {
-    List<DartCamera.AprilTagResult> aprilTagResults = camera.readAprilTagResults();
-    DartCamera.PnPResult latestPnPResult = null;
-    double latestTimestamp = -1;
-    for (DartCamera.AprilTagResult result : aprilTagResults) {
-      if (result.numPnpResults > 0 && result.captureTimestamp > latestTimestamp) {
-        latestTimestamp = result.captureTimestamp;
-        latestPnPResult = result.pnpResults[0];
-      }
-    }
-    if (latestPnPResult != null && latestTimestamp > lastProcessedTimestamp) {
-      this.addVisionMeasurement(latestPnPResult.pose.toPose2d(), latestTimestamp);
-      lastProcessedTimestamp = latestTimestamp;
-    }
-
+    //      List<DartCamera.AprilTagResult> aprilTagResults = camera.readAprilTagResults();
+    //      DartCamera.PnPResult latestPnPResult = null;
+    //      double latestTimestamp = -1;
+    //      for (DartCamera.AprilTagResult result : aprilTagResults) {
+    //        if (result.numPnpResults > 0 && result.captureTimestamp > latestTimestamp) {
+    //          latestTimestamp = result.captureTimestamp;
+    //          latestPnPResult = result.pnpResults[0];
+    //        }
+    //      }
+    //      if (latestPnPResult != null && latestTimestamp > lastProcessedTimestamp) {
+    //        this.addVisionMeasurement(latestPnPResult.pose.toPose2d(), latestTimestamp);
+    //        lastProcessedTimestamp = latestTimestamp;
+    //      }
+    //
     var state = getStateCopy();
 
     inputs.pose = state.Pose;

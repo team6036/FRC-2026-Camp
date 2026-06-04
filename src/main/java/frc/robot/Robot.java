@@ -11,20 +11,18 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.constants.SwerveConstants;
 import frc.robot.subsystems.swerve.SwerveIO;
 import frc.robot.subsystems.swerve.SwerveSubsystem;
-import frc.robot.subsystems.visionfuel.VisionFuelIO;
-import frc.robot.subsystems.visionfuel.VisionFuelSubsystem;
 import frc.robot.util.Logger;
 
 public class Robot extends TimedRobot {
 
   private final SwerveSubsystem swerve;
-  private final VisionFuelSubsystem visionFuel;
+  //  private final VisionFuelSubsystem visionFuel;
   private final XboxController controller = new XboxController(0);
 
   public Robot() {
     super(0.02);
     swerve = new SwerveSubsystem(new SwerveIO());
-    visionFuel = new VisionFuelSubsystem(new VisionFuelIO(swerve.getPoseBuffer()));
+    //    visionFuel = new VisionFuelSubsystem(new VisionFuelIO(swerve.getPoseBuffer()));
   }
 
   @Override

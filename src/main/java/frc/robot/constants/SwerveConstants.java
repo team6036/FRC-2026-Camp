@@ -33,32 +33,41 @@ public class SwerveConstants {
   };
 
   /* Steer Motor PID Values */
-  public static final double steerKP = 1000;
+  public static final double steerKP = 0;
   public static final double steerKI = 0;
-  public static final double steerKD = 40;
+  public static final double steerKD = 0;
   public static final double steerKS = 0;
   public static final double steerKV = 0;
   public static final double steerKA = 0;
   public static final double steerKG = 0;
 
   /* Drive Motor PID Values */
-  public static final double driveKP = 0.9993214286;
+  public static final double driveKP = 0;
+  //  public static final double driveKP = 0.9993214286;
   public static final double driveKI = 0;
   public static final double driveKD = 0;
-  public static final double driveKS = 0.19528;
-  public static final double driveKV = 0.6474107143;
-  public static final double driveKA = 0.0331076786;
+  public static final double driveKS = 0;
+  //  public static final double driveKS = 0.19528;
+  public static final double driveKV = 0;
+  //  public static final double driveKV = 0.6474107143;
+  public static final double driveKA = 0;
+  //  public static final double driveKA = 0.0331076786;
   public static final double driveKG = 0;
 
   public static final int[] steerIds = {1, 3, 5, 7};
   public static final int[] driveIds = {2, 4, 6, 8};
   public static final int[] encoderIds = {9, 10, 11, 12};
 
-  public static final double steerGearRatio = 287d / 11; // MK5n
-  public static final double driveGearRatio = 1d / ((14d / 54) * (32d / 25) * (15d / 30)); // MK5n
-  public static final double wheelDiameterMeters = 0.049782 * 2;
-  public static final double wheelCircumferenceMeters = wheelDiameterMeters * Math.PI;
+  //  public static final double steerGearRatio = 287d / 11; // MK5n
+  //  public static final double driveGearRatio = 1d / ((14d / 54) * (32d / 25) * (15d / 30)); //
+  // MK5n
+  //  public static final double wheelDiameterMeters = 0.049782 * 2;
 
+  // MK4 L2 (don't know how this works yet but I'll take it)
+  // See https://www.swervedrivespecialties.com/products/mk4-swerve-module
+  public static final double steerGearRatio = 12.8;
+  public static final double driveGearRatio = 1d / ((14d / 50) * (28d / 16) * (15d / 45));
+  public static final double wheelDiameterMeters = Units.inchesToMeters(4);
   public static final double[] encoderOffsets = {0d, 0d, 0d, 0d};
 
   private static SwerveModuleConstants<
@@ -136,6 +145,6 @@ public class SwerveConstants {
 
   /* Limits */
   public static final double maxLinearSpeed = 1d;
-  public static final double maxAngularSpeed = 2 * Math.PI;
+  public static final double maxAngularSpeed = 0;
   public static final double joystickDeadband = 0.05;
 }
