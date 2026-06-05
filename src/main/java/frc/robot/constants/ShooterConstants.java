@@ -5,10 +5,10 @@ import com.ctre.phoenix6.CANBus;
 public class ShooterConstants {
   /* CAN */
   public static final CANBus bus = RobotConstants.rio;
-  public static final int bottomLeftMotorId = 101;
-  public static final int bottomRightMotorId = 102;
-  public static final int topLeftMotorId = 103;
-  public static final int topRightMotorId = 104;
+  public static final int bottomLeftMotorId = 10;
+  public static final int bottomRightMotorId = 11;
+  public static final int topLeftMotorId = 12;
+  public static final int topRightMotorId = 13;
 
   /* Control */
   public static final double kP = 0;
@@ -19,5 +19,5 @@ public class ShooterConstants {
   public static final double kA = 0;
 
   /* Setpoints */
-  public static final double desiredVelocity = 30d;
+  public static final double desiredVelocityRPS = 30d;
 }

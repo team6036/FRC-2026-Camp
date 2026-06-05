@@ -34,7 +34,7 @@ public class ShooterSubsystem extends SubsystemBase {
 
     switch (wantedMode) {
       case SHOOTING:
-        io.setVelocity(ShooterConstants.desiredVelocity);
+        io.setVelocity(ShooterConstants.desiredVelocityRPS);
         break;
       case OFF:
       default:
