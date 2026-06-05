@@ -9,6 +9,8 @@ import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.constants.SwerveConstants;
+import frc.robot.subsystems.shooter.ShooterIO;
+import frc.robot.subsystems.shooter.ShooterSubsystem;
 import frc.robot.subsystems.swerve.SwerveIO;
 import frc.robot.subsystems.swerve.SwerveSubsystem;
 import frc.robot.util.Logger;
@@ -16,12 +18,14 @@ import frc.robot.util.Logger;
 public class Robot extends TimedRobot {
 
   private final SwerveSubsystem swerve;
+  private final ShooterSubsystem shooter;
   //  private final VisionFuelSubsystem visionFuel;
   private final XboxController controller = new XboxController(0);
 
   public Robot() {
     super(0.02);
     swerve = new SwerveSubsystem(new SwerveIO());
+    shooter = new ShooterSubsystem(new ShooterIO());
     //    visionFuel = new VisionFuelSubsystem(new VisionFuelIO(swerve.getPoseBuffer()));
   }
 
@@ -51,6 +55,12 @@ public class Robot extends TimedRobot {
     double omega = controller.getRightX() * SwerveConstants.maxAngularSpeed;
 
     swerve.driveFieldRelative(new ChassisSpeeds(vx, vy, omega));
+
+    if (controller.getXButton()) {
+      shooter.setMode(ShooterSubsystem.Mode.SHOOTING);
+    } else {
+      shooter.setMode(ShooterSubsystem.Mode.OFF);
+    }
   }
 
   @Override
