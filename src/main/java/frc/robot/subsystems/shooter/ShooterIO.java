@@ -1,10 +1,13 @@
 package frc.robot.subsystems.shooter;
 
+import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.MotorAlignmentValue;
+import com.ctre.phoenix6.signals.NeutralModeValue;
+import edu.wpi.first.units.measure.AngularVelocity;
 import frc.robot.constants.ShooterConstants;
 
 public class ShooterIO {
@@ -13,6 +16,11 @@ public class ShooterIO {
   private final TalonFX bottomRightMotor;
   private final TalonFX topLeftMotor;
   private final TalonFX topRightMotor;
+
+  private final StatusSignal<AngularVelocity> bottomLeftVelocity;
+  private final StatusSignal<AngularVelocity> bottomRightVelocity;
+  private final StatusSignal<AngularVelocity> topLeftVelocity;
+  private final StatusSignal<AngularVelocity> topRightVelocity;
 
   private final VelocityVoltage velocityRequest = new VelocityVoltage(0);
 
@@ -28,7 +36,14 @@ public class ShooterIO {
     bottomRightMotor = new TalonFX(ShooterConstants.bottomRightMotorId, ShooterConstants.bus);
     topLeftMotor = new TalonFX(ShooterConstants.topLeftMotorId, ShooterConstants.bus);
     topRightMotor = new TalonFX(ShooterConstants.topRightMotorId, ShooterConstants.bus);
+
+    bottomLeftVelocity = bottomLeftMotor.getVelocity();
+    bottomRightVelocity = bottomRightMotor.getVelocity();
+    topLeftVelocity = topLeftMotor.getVelocity();
+    topRightVelocity = topRightMotor.getVelocity();
+
     TalonFXConfiguration config = new TalonFXConfiguration();
+    config.MotorOutput.NeutralMode = NeutralModeValue.Coast;
     config.Slot0.kP = ShooterConstants.kP;
     config.Slot0.kI = ShooterConstants.kI;
     config.Slot0.kD = ShooterConstants.kD;
@@ -48,14 +63,14 @@ public class ShooterIO {
   }
 
   public void updateInputs(ShooterIOInputs inputs) {
-    inputs.bottomLeftVelocityRPS = bottomLeftMotor.getVelocity().getValueAsDouble();
-    inputs.bottomRightVelocityRPS = bottomRightMotor.getVelocity().getValueAsDouble();
-    inputs.topLeftVelocityRPS = topLeftMotor.getVelocity().getValueAsDouble();
-    inputs.topRightVelocityRPS = topRightMotor.getVelocity().getValueAsDouble();
+    inputs.bottomLeftVelocityRPS = bottomLeftVelocity.refresh().getValueAsDouble();
+    inputs.bottomRightVelocityRPS = bottomRightVelocity.refresh().getValueAsDouble();
+    inputs.topLeftVelocityRPS = topLeftVelocity.refresh().getValueAsDouble();
+    inputs.topRightVelocityRPS = topRightVelocity.refresh().getValueAsDouble();
   }
 
   public void setVelocity(double velocityRPS) {
-    bottomLeftMotor.setControl(velocityRequest.withVelocity(velocityRPS));
+    bottomLeftMotor.setControl(velocityRequest.withVelocity(-velocityRPS));
     topLeftMotor.setControl(velocityRequest.withVelocity(velocityRPS));
   }
 
