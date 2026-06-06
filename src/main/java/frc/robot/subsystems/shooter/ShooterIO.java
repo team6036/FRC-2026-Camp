@@ -9,14 +9,10 @@ import frc.robot.constants.ShooterConstants;
 
 public class ShooterIO {
 
-  private final TalonFX bottomLeftMotor =
-      new TalonFX(ShooterConstants.bottomLeftMotorId, ShooterConstants.bus);
-  private final TalonFX bottomRightMotor =
-      new TalonFX(ShooterConstants.bottomRightMotorId, ShooterConstants.bus);
-  private final TalonFX topLeftMotor =
-      new TalonFX(ShooterConstants.topLeftMotorId, ShooterConstants.bus);
-  private final TalonFX topRightMotor =
-      new TalonFX(ShooterConstants.topRightMotorId, ShooterConstants.bus);
+  private final TalonFX bottomLeftMotor;
+  private final TalonFX bottomRightMotor;
+  private final TalonFX topLeftMotor;
+  private final TalonFX topRightMotor;
 
   private final VelocityVoltage velocityRequest = new VelocityVoltage(0);
 
@@ -28,6 +24,10 @@ public class ShooterIO {
   }
 
   public ShooterIO() {
+    bottomLeftMotor = new TalonFX(ShooterConstants.bottomLeftMotorId, ShooterConstants.bus);
+    bottomRightMotor = new TalonFX(ShooterConstants.bottomRightMotorId, ShooterConstants.bus);
+    topLeftMotor = new TalonFX(ShooterConstants.topLeftMotorId, ShooterConstants.bus);
+    topRightMotor = new TalonFX(ShooterConstants.topRightMotorId, ShooterConstants.bus);
     TalonFXConfiguration config = new TalonFXConfiguration();
     config.Slot0.kP = ShooterConstants.kP;
     config.Slot0.kI = ShooterConstants.kI;
@@ -38,6 +38,8 @@ public class ShooterIO {
 
     bottomLeftMotor.getConfigurator().apply(config);
     topLeftMotor.getConfigurator().apply(config);
+    bottomRightMotor.getConfigurator().apply(config);
+    topRightMotor.getConfigurator().apply(config);
 
     bottomRightMotor.setControl(
         new Follower(ShooterConstants.bottomLeftMotorId, MotorAlignmentValue.Opposed));
