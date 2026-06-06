@@ -11,6 +11,7 @@ import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.RobotBase;
+import frc.robot.util.NTFullGains;
 import java.util.List;
 
 public class SwerveConstants {
@@ -41,18 +42,24 @@ public class SwerveConstants {
   public static final double steerKA = 0;
   public static final double steerKG = 0;
 
+  public static final NTFullGains steerGains =
+      new NTFullGains("Steer", steerKP, steerKI, steerKD, steerKS, steerKV, steerKA, steerKG);
+
   /* Drive Motor PID Values */
-  public static final double driveKP = 0.05;
+  public static final double driveKP = 0.02;
   //  public static final double driveKP = 0.9993214286;
   public static final double driveKI = 0;
   public static final double driveKD = 0;
   public static final double driveKS = 0;
   //  public static final double driveKS = 0.19528;
-  public static final double driveKV = 0.15;
+  public static final double driveKV = 0.05;
   //  public static final double driveKV = 0.6474107143;
   public static final double driveKA = 0;
   //  public static final double driveKA = 0.0331076786;
   public static final double driveKG = 0;
+
+  public static final NTFullGains driveGains =
+      new NTFullGains("Drive", driveKP, driveKI, driveKD, driveKS, driveKV, driveKA, driveKG);
 
   public static final int[] steerIds = {1, 3, 5, 7};
   public static final int[] driveIds = {2, 4, 6, 8};
