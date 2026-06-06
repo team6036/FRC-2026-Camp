@@ -1,5 +1,6 @@
 package frc.robot.subsystems.swerve;
 
+import com.ctre.phoenix6.configs.TalonFXConfigurator;
 import com.ctre.phoenix6.swerve.SwerveModule;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -65,6 +66,22 @@ public class SwerveSubsystem extends SubsystemBase {
     return poseBuffer;
   }
 
+  public void updateNT() {
+    boolean updateDrive = SwerveConstants.driveGains.shouldUpdate();
+    boolean updateSteer = SwerveConstants.steerGains.shouldUpdate();
+    if (!updateDrive && !updateSteer) {
+      return;
+    }
+
+    for (int i = 0; i < 4; i++) {
+      TalonFXConfigurator steerConfigurator = io.getModule(i).getSteerMotor().getConfigurator();
+      TalonFXConfigurator driveConfigurator = io.getModule(i).getDriveMotor().getConfigurator();
+
+      if (updateDrive) SwerveConstants.driveGains.update(driveConfigurator);
+      if (updateSteer) SwerveConstants.steerGains.update(steerConfigurator);
+    }
+  }
+
   @Override
   public void periodic() {
     io.updateInputs(inputs);
@@ -73,6 +90,8 @@ public class SwerveSubsystem extends SubsystemBase {
     Logger.log("Subsystems/Swerve/SwerveModuleStates", inputs.moduleStates);
     Logger.log("Subsystems/Swerve/Pose", inputs.pose);
     Logger.log("Subsystems/Swerve/Speeds/Actual", inputs.speeds);
+
+    updateNT();
   }
 
   public void simulationPeriodic() {
