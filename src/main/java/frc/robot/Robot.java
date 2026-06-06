@@ -56,7 +56,7 @@ public class Robot extends TimedRobot {
 
     swerve.driveFieldRelative(new ChassisSpeeds(vx, vy, omega));
 
-    if (controller.getXButton()) {
+    if (controller.getRawButton(4)) {
       shooter.setMode(ShooterSubsystem.Mode.SHOOTING);
     } else {
       shooter.setMode(ShooterSubsystem.Mode.OFF);
