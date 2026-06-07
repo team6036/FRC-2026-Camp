@@ -76,7 +76,8 @@ public class SwerveConstants {
   public static final double steerGearRatio = 12.8;
   public static final double driveGearRatio = 1d / ((14d / 50) * (27d / 17) * (15d / 45));
   public static final double wheelDiameterMeters = Units.inchesToMeters(4);
-  public static final double[] encoderOffsets = {0.250488, -0.217773, -0.471191, -0.178467};
+    public static final double[] encoderOffsets = {0.250488, -0.217773, -0.471191, -0.178467};
+  //  public static final double[] encoderOffsets = {-0.017, -20.258, -2.378, 14.291};  // These ones are the new ones, though I think they're in degrees
 
   private static SwerveModuleConstants<
           TalonFXConfiguration, TalonFXConfiguration, CANcoderConfiguration>
