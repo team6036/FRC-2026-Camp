@@ -69,6 +69,11 @@ public class ShooterIO {
     inputs.topRightVelocityRPS = topRightVelocity.refresh().getValueAsDouble();
   }
 
+  public void setVelocity(double velocityRPS) {
+    setTopVelocity(velocityRPS);
+    setBottomVelocity(velocityRPS);
+  }
+
   public void setTopVelocity(double velocityRPS) {
     topLeftMotor.setControl(velocityRequest.withVelocity(velocityRPS));
   }
