@@ -35,7 +35,7 @@ public class SwerveConstants {
   };
 
   /* Steer Motor PID Values */
-  public static final double steerKP = 10;
+  public static final double steerKP = 100;
   public static final double steerKI = 0;
   public static final double steerKD = 0;
   public static final double steerKS = 0;
@@ -94,6 +94,9 @@ public class SwerveConstants {
         .withEncoderId(encoderIds[i])
         .withDriveMotorGearRatio(driveGearRatio)
         .withSteerMotorGearRatio(steerGearRatio)
+        .withDriveMotorInverted(true)
+        .withSteerMotorInverted(true)
+        .withEncoderInverted(false)
         .withWheelRadius(wheelDiameterMeters / 2)
         .withLocationX(moduleTranslations[i].getX())
         .withLocationY(moduleTranslations[i].getY())

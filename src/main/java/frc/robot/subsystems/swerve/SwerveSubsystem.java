@@ -38,7 +38,7 @@ public class SwerveSubsystem extends SubsystemBase {
     this.io = io;
     io.resetPose(
         new Pose2d(
-            FieldConstants.Hub.redHubPosition.getX() + 4,
+            FieldConstants.Hub.redHubPosition.getX() + 4.25,
             FieldConstants.Hub.redHubPosition.getY(),
             Rotation2d.k180deg));
   }
@@ -104,6 +104,7 @@ public class SwerveSubsystem extends SubsystemBase {
     Logger.log("Subsystems/Swerve/SwerveModuleStates", inputs.moduleStates);
     Logger.log("Subsystems/Swerve/Pose", inputs.pose);
     Logger.log("Subsystems/Swerve/Speeds/Actual", inputs.speeds);
+    Logger.log("Subsystems/Swerve/DistanceFromHub", getDistanceFromHub());
 
     updateNT();
   }
