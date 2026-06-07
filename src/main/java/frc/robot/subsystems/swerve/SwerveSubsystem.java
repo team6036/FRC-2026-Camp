@@ -40,7 +40,7 @@ public class SwerveSubsystem extends SubsystemBase {
     double vx = speeds.vxMetersPerSecond;
     double vy = speeds.vyMetersPerSecond;
     double omega = speeds.omegaRadiansPerSecond;
-    if (RobotConstants.onBlue()) {
+    if (RobotConstants.onRed()) {
       vx = -vx;
       vy = -vy;
     }

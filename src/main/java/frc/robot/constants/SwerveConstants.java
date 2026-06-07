@@ -73,10 +73,10 @@ public class SwerveConstants {
 
   // MK4 L2 (don't know how this works yet but I'll take it)
   // See https://www.swervedrivespecialties.com/products/mk4-swerve-module
-  public static final double steerGearRatio = 12.8;
-  public static final double driveGearRatio = 1d / ((14d / 50) * (27d / 17) * (15d / 45));
+  public static final double steerGearRatio = 18.75;
+  public static final double driveGearRatio = 1d / ((16d / 50) * (27d / 17) * (15d / 45));
   public static final double wheelDiameterMeters = Units.inchesToMeters(4);
-  public static final double[] encoderOffsets = {0.250488, -0.217773, -0.471191, -0.178467};
+  public static final double[] encoderOffsets = {-0.279785, -0.254883, 0.176758, -0.028564};
   //  public static final double[] encoderOffsets = {-0.017, -20.258, -2.378, 14.291};  // These
   // ones are the new ones, though I think they're in degrees
 
