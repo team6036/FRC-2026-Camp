@@ -34,7 +34,7 @@ public class SwerveConstants {
   };
 
   /* Steer Motor PID Values */
-  public static final double steerKP = 50;
+  public static final double steerKP = 10;
   public static final double steerKI = 0;
   public static final double steerKD = 0;
   public static final double steerKS = 0;
@@ -46,13 +46,13 @@ public class SwerveConstants {
       new NTFullGains("Steer", steerKP, steerKI, steerKD, steerKS, steerKV, steerKA, steerKG);
 
   /* Drive Motor PID Values */
-  public static final double driveKP = 0.02;
+  public static final double driveKP = 0.03;
   //  public static final double driveKP = 0.9993214286;
   public static final double driveKI = 0;
   public static final double driveKD = 0;
   public static final double driveKS = 0;
   //  public static final double driveKS = 0.19528;
-  public static final double driveKV = 0.05;
+  public static final double driveKV = 0.11;
   //  public static final double driveKV = 0.6474107143;
   public static final double driveKA = 0;
   //  public static final double driveKA = 0.0331076786;
