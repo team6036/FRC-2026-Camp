@@ -3,6 +3,7 @@ package frc.robot.constants;
 import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.VecBuilder;
@@ -115,6 +116,7 @@ public class SwerveConstants {
     config.Slot0.kG = steerKG;
 
     if (RobotBase.isReal()) {
+      config.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RemoteCANcoder;
       config.Feedback.FeedbackRemoteSensorID = encoderId;
     }
 

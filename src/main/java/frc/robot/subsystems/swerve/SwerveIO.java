@@ -65,8 +65,12 @@ public class SwerveIO extends SwerveDrivetrain<TalonFX, TalonFX, CANcoder> {
 
     for (int i = 0; i < modules.length; i++) {
       Logger.log(
-          "Subsystems/Swerve/Voltages/" + i,
+          "Subsystems/Swerve/Voltages/Drive/" + i,
           modules[i].getDriveMotor().getMotorVoltage().getValueAsDouble());
+      Logger.log(
+          "Subsystems/Swerve/Voltages/Steer/" + i,
+          modules[i].getSteerMotor().getMotorVoltage().getValueAsDouble());
+      // todo use status signals instead
     }
   }
 }
