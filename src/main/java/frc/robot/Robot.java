@@ -4,7 +4,6 @@
 
 package frc.robot;
 
-import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
@@ -52,9 +51,14 @@ public class Robot extends TimedRobot {
   public void teleopPeriodic() {
     double vx = controller.getLeftY() * SwerveConstants.maxLinearSpeed;
     double vy = controller.getLeftX() * SwerveConstants.maxLinearSpeed;
-    double omega = controller.getRightX() * SwerveConstants.maxAngularSpeed;
 
-    swerve.driveFieldRelative(new ChassisSpeeds(vx, vy, omega));
+    //    double vx = 0;
+    //    double vy = 0;
+
+    //    double omega = controller.getRightX() * SwerveConstants.maxAngularSpeed;
+    double omega = 0;
+
+    //    swerve.driveFieldRelative(new ChassisSpeeds(vx, vy, omega));
 
     if (controller.getRawButton(4)) {
       shooter.setMode(ShooterSubsystem.Mode.SHOOTING);

@@ -3,6 +3,7 @@ package frc.robot.constants;
 import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.VecBuilder;
@@ -34,7 +35,7 @@ public class SwerveConstants {
   };
 
   /* Steer Motor PID Values */
-  public static final double steerKP = 50;
+  public static final double steerKP = 10;
   public static final double steerKI = 0;
   public static final double steerKD = 0;
   public static final double steerKS = 0;
@@ -46,13 +47,13 @@ public class SwerveConstants {
       new NTFullGains("Steer", steerKP, steerKI, steerKD, steerKS, steerKV, steerKA, steerKG);
 
   /* Drive Motor PID Values */
-  public static final double driveKP = 0.02;
+  public static final double driveKP = 0.03;
   //  public static final double driveKP = 0.9993214286;
   public static final double driveKI = 0;
   public static final double driveKD = 0;
   public static final double driveKS = 0;
   //  public static final double driveKS = 0.19528;
-  public static final double driveKV = 0.05;
+  public static final double driveKV = 0.11;
   //  public static final double driveKV = 0.6474107143;
   public static final double driveKA = 0;
   //  public static final double driveKA = 0.0331076786;
@@ -75,7 +76,8 @@ public class SwerveConstants {
   public static final double steerGearRatio = 12.8;
   public static final double driveGearRatio = 1d / ((14d / 50) * (27d / 17) * (15d / 45));
   public static final double wheelDiameterMeters = Units.inchesToMeters(4);
-  public static final double[] encoderOffsets = {0.250488, -0.217773, -0.471191, -0.178467};
+    public static final double[] encoderOffsets = {0.250488, -0.217773, -0.471191, -0.178467};
+  //  public static final double[] encoderOffsets = {-0.017, -20.258, -2.378, 14.291};  // These ones are the new ones, though I think they're in degrees
 
   private static SwerveModuleConstants<
           TalonFXConfiguration, TalonFXConfiguration, CANcoderConfiguration>
@@ -115,6 +117,7 @@ public class SwerveConstants {
     config.Slot0.kG = steerKG;
 
     if (RobotBase.isReal()) {
+      config.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RemoteCANcoder;
       config.Feedback.FeedbackRemoteSensorID = encoderId;
     }
 
