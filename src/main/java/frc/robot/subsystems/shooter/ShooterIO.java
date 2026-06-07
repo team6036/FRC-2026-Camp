@@ -6,7 +6,6 @@ import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.MotorAlignmentValue;
-import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.units.measure.AngularVelocity;
 import frc.robot.constants.ShooterConstants;
 
@@ -42,24 +41,34 @@ public class ShooterIO {
     topLeftVelocity = topLeftMotor.getVelocity();
     topRightVelocity = topRightMotor.getVelocity();
 
-    TalonFXConfiguration config = new TalonFXConfiguration();
-    config.MotorOutput.NeutralMode = NeutralModeValue.Coast;
-    config.Slot0.kP = ShooterConstants.kP;
-    config.Slot0.kI = ShooterConstants.kI;
-    config.Slot0.kD = ShooterConstants.kD;
-    config.Slot0.kS = ShooterConstants.kS;
-    config.Slot0.kV = ShooterConstants.kV;
-    config.Slot0.kA = ShooterConstants.kA;
-
-    bottomLeftMotor.getConfigurator().apply(config);
-    topLeftMotor.getConfigurator().apply(config);
-    bottomRightMotor.getConfigurator().apply(config);
-    topRightMotor.getConfigurator().apply(config);
+    configurePID(
+        ShooterConstants.kP,
+        ShooterConstants.kI,
+        ShooterConstants.kD,
+        ShooterConstants.kS,
+        ShooterConstants.kV,
+        ShooterConstants.kG,
+        ShooterConstants.kA);
 
     bottomRightMotor.setControl(
         new Follower(ShooterConstants.bottomLeftMotorId, MotorAlignmentValue.Opposed));
     topRightMotor.setControl(
         new Follower(ShooterConstants.topLeftMotorId, MotorAlignmentValue.Opposed));
+  }
+
+  public void configurePID(
+      double kP, double kI, double kD, double kS, double kV, double kG, double kA) {
+    TalonFXConfiguration config = new TalonFXConfiguration();
+    config.Slot0.kP = kP;
+    config.Slot0.kI = kI;
+    config.Slot0.kD = kD;
+    config.Slot0.kS = kS;
+    config.Slot0.kV = kV;
+    config.Slot0.kG = kG;
+    config.Slot0.kA = kA;
+
+    bottomLeftMotor.getConfigurator().apply(config);
+    topLeftMotor.getConfigurator().apply(config);
   }
 
   public void updateInputs(ShooterIOInputs inputs) {

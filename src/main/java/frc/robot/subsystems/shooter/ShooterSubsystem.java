@@ -1,6 +1,7 @@
 package frc.robot.subsystems.shooter;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.constants.ShooterConstants;
 import frc.robot.subsystems.shooter.ShooterIO.ShooterIOInputs;
 import frc.robot.util.Logger;
 
@@ -15,40 +16,52 @@ public class ShooterSubsystem extends SubsystemBase {
   private final ShooterIOInputs inputs = new ShooterIOInputs();
   private Mode wantedMode = Mode.OFF;
   private double wantedVelocityRPS = 0;
+  private boolean isShooting = false;
 
   public ShooterSubsystem(ShooterIO io) {
     this.io = io;
   }
 
-  public void setMode(Mode mode) {
-    this.wantedMode = mode;
+  public void configurePID(
+      double kP, double kI, double kD, double kS, double kV, double kG, double kA) {
+    io.configurePID(kP, kI, kD, kS, kV, kG, kA);
   }
 
-  public void setWantedVelocityRPS(double wantedVelocityRPS) {
-    this.wantedVelocityRPS = wantedVelocityRPS;
+  public void addShot(double distance, double velocityRPS) {
+    ShooterConstants.shooterVelocityMap.put(distance, velocityRPS);
+  }
+
+  public double getVelocityForDistance(double distanceMeters) {
+    return ShooterConstants.shooterVelocityMap.get(distanceMeters);
+  }
+
+  public void shoot(double velocityRPS) {
+    this.wantedVelocityRPS = velocityRPS;
+    this.isShooting = true;
+  }
+
+  public void stop() {
+    this.wantedVelocityRPS = 0;
+    this.isShooting = false;
   }
 
   @Override
   public void periodic() {
-    Logger.log("Subsystems/Shooter/WantedMode", wantedMode);
-    Logger.log("Subsystems/Shooter/WantedVelocityRPS", wantedVelocityRPS);
-
     io.updateInputs(inputs);
+
     Logger.log("Subsystems/Shooter/BottomLeftVelocity", inputs.bottomLeftVelocityRPS);
     Logger.log("Subsystems/Shooter/BottomRightVelocity", inputs.bottomRightVelocityRPS);
     Logger.log("Subsystems/Shooter/TopLeftVelocity", inputs.topLeftVelocityRPS);
     Logger.log("Subsystems/Shooter/TopRightVelocity", inputs.topRightVelocityRPS);
+    Logger.log("Subsystems/Shooter/WantedVelocityRPS", wantedVelocityRPS);
 
-    switch (wantedMode) {
-      case SHOOTING:
-        io.setTopVelocity(wantedVelocityRPS);
-        if (inputs.topLeftVelocityRPS >= wantedVelocityRPS * 0.9) {
-          io.setBottomVelocity(wantedVelocityRPS);
-        }
-        break;
-      case OFF:
-      default:
-        io.stop();
+    if (isShooting) {
+      io.setTopVelocity(wantedVelocityRPS);
+      if (inputs.topLeftVelocityRPS >= wantedVelocityRPS * 0.9) {
+        io.setBottomVelocity(wantedVelocityRPS);
+      }
+    } else {
+      io.stop();
     }
   }
 }
