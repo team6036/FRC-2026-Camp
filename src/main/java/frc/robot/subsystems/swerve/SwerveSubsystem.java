@@ -4,10 +4,12 @@ import com.ctre.phoenix6.configs.TalonFXConfigurator;
 import com.ctre.phoenix6.swerve.SwerveModule;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.interpolation.TimeInterpolatableBuffer;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.constants.FieldConstants;
 import frc.robot.constants.RobotConstants;
 import frc.robot.constants.SwerveConstants;
 import frc.robot.constants.VisionConstants;
@@ -34,6 +36,11 @@ public class SwerveSubsystem extends SubsystemBase {
 
   public SwerveSubsystem(SwerveIO io) {
     this.io = io;
+    io.resetPose(
+        new Pose2d(
+            FieldConstants.Hub.redHubPosition.getX() + 4,
+            FieldConstants.Hub.redHubPosition.getY(),
+            Rotation2d.k180deg));
   }
 
   public void driveFieldRelative(ChassisSpeeds speeds) {
@@ -60,6 +67,13 @@ public class SwerveSubsystem extends SubsystemBase {
 
   public Pose2d getPose() {
     return inputs.pose;
+  }
+
+  public double getDistanceFromHub() {
+    return inputs
+        .pose
+        .getTranslation()
+        .getDistance(FieldConstants.Hub.redHubPosition.toTranslation2d());
   }
 
   public TimeInterpolatableBuffer<Pose2d> getPoseBuffer() {

@@ -4,9 +4,12 @@
 
 package frc.robot;
 
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
+import frc.robot.commands.ShootCommand;
 import frc.robot.constants.SwerveConstants;
 import frc.robot.subsystems.shooter.ShooterIO;
 import frc.robot.subsystems.shooter.ShooterSubsystem;
@@ -21,11 +24,15 @@ public class Robot extends TimedRobot {
   //  private final VisionFuelSubsystem visionFuel;
   private final XboxController controller = new XboxController(0);
 
+  private final ShootCommand shootCommand;
+
   public Robot() {
     super(0.02);
     swerve = new SwerveSubsystem(new SwerveIO());
     shooter = new ShooterSubsystem(new ShooterIO());
     //    visionFuel = new VisionFuelSubsystem(new VisionFuelIO(swerve.getPoseBuffer()));
+
+    shootCommand = new ShootCommand(shooter, swerve);
   }
 
   @Override
@@ -45,26 +52,17 @@ public class Robot extends TimedRobot {
   public void autonomousPeriodic() {}
 
   @Override
-  public void teleopInit() {}
+  public void teleopInit() {
+    new Trigger(() -> controller.getRawButton(4)).whileTrue(shootCommand);
+  }
 
   @Override
   public void teleopPeriodic() {
     double vx = controller.getLeftY() * SwerveConstants.maxLinearSpeed;
     double vy = controller.getLeftX() * SwerveConstants.maxLinearSpeed;
+    double omega = controller.getRightX() * SwerveConstants.maxAngularSpeed;
 
-    //    double vx = 0;
-    //    double vy = 0;
-
-    //    double omega = controller.getRightX() * SwerveConstants.maxAngularSpeed;
-    double omega = 0;
-
-    //    swerve.driveFieldRelative(new ChassisSpeeds(vx, vy, omega));
-
-    if (controller.getRawButton(4)) {
-      shooter.setMode(ShooterSubsystem.Mode.SHOOTING);
-    } else {
-      shooter.setMode(ShooterSubsystem.Mode.OFF);
-    }
+    swerve.driveFieldRelative(new ChassisSpeeds(vx, vy, omega));
   }
 
   @Override

@@ -1,6 +1,7 @@
 package frc.robot.constants;
 
 import com.ctre.phoenix6.CANBus;
+import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
 
 public class ShooterConstants {
   /* CAN */
@@ -18,6 +19,15 @@ public class ShooterConstants {
   public static final double kV = 0.12;
   public static final double kA = 0;
 
-  /* Setpoints */
-  public static final double desiredVelocityRPS = 48d;
+  /* Shotmap */
+  public static final InterpolatingDoubleTreeMap shooterVelocityMap =
+      new InterpolatingDoubleTreeMap();
+
+  static {
+    shooterVelocityMap.put(1.0, 25.0);
+    shooterVelocityMap.put(2.0, 35.0);
+    shooterVelocityMap.put(4.0, 48.0);
+    shooterVelocityMap.put(5.0, 60.0);
+    shooterVelocityMap.put(8.0, 90.0);
+  }
 }
