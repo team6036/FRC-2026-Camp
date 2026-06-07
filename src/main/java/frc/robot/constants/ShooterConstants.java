@@ -19,5 +19,5 @@ public class ShooterConstants {
   public static final double kA = 0;
 
   /* Setpoints */
-  public static final double desiredVelocityRPS = 30d;
+  public static final double desiredVelocityRPS = 48d;
 }
