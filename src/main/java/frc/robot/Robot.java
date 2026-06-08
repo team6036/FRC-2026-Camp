@@ -7,6 +7,7 @@ package frc.robot;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
@@ -14,6 +15,7 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.commands.AimCommand;
 import frc.robot.commands.ShootCommand;
 import frc.robot.constants.FieldConstants;
+import frc.robot.constants.RobotConstants;
 import frc.robot.constants.SwerveConstants;
 import frc.robot.subsystems.shooter.ShooterIO;
 import frc.robot.subsystems.shooter.ShooterSubsystem;
@@ -78,6 +80,8 @@ public class Robot extends TimedRobot {
       omega = Rotation2d.fromRadians(angleToHub).minus(pose.getRotation()).getRadians();
     }
     swerve.driveFieldRelative(new ChassisSpeeds(vx, vy, omega));
+    Logger.log("SerialNumber", RobotController.getSerialNumber());
+    Logger.log("SwerveType", RobotConstants.swerveModuleType);
   }
 
   @Override
