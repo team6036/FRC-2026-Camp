@@ -18,8 +18,14 @@ import frc.robot.util.Logger;
 
 public class SwerveSubsystem extends SubsystemBase {
 
+  public enum Mode {
+    NORMAL,
+    AIM,
+  }
+
   private final SwerveIO io;
   private final SwerveIOInputs inputs = new SwerveIOInputs();
+  public Mode wantedMode = Mode.NORMAL;
 
   private final TimeInterpolatableBuffer<Pose2d> poseBuffer =
       TimeInterpolatableBuffer.createBuffer(VisionConstants.pieceStaleTime);
@@ -38,16 +44,16 @@ public class SwerveSubsystem extends SubsystemBase {
     this.io = io;
     io.resetPose(
         new Pose2d(
-            FieldConstants.Hub.redHubPosition.getX() + 4.25,
+            FieldConstants.Hub.redHubPosition.getX() + 5.0,
             FieldConstants.Hub.redHubPosition.getY(),
-            Rotation2d.k180deg));
+            Rotation2d.kZero));
   }
 
   public void driveFieldRelative(ChassisSpeeds speeds) {
     double vx = speeds.vxMetersPerSecond;
     double vy = speeds.vyMetersPerSecond;
     double omega = speeds.omegaRadiansPerSecond;
-    if (RobotConstants.onRed()) {
+    if (RobotConstants.onBlue()) {
       vx = -vx;
       vy = -vy;
     }
@@ -101,9 +107,12 @@ public class SwerveSubsystem extends SubsystemBase {
     io.updateInputs(inputs);
     poseBuffer.addSample(Timer.getFPGATimestamp(), inputs.pose);
 
+    Logger.log("Subsystems/Swerve/WantedMode", wantedMode);
+
     Logger.log("Subsystems/Swerve/SwerveModuleStates", inputs.moduleStates);
     Logger.log("Subsystems/Swerve/Pose", inputs.pose);
     Logger.log("Subsystems/Swerve/Speeds/Actual", inputs.speeds);
+
     Logger.log("Subsystems/Swerve/DistanceFromHub", getDistanceFromHub());
 
     updateNT();

@@ -13,15 +13,11 @@ public class ShooterSubsystem extends SubsystemBase {
 
   private final ShooterIO io;
   private final ShooterIOInputs inputs = new ShooterIOInputs();
-  private Mode wantedMode = Mode.OFF;
+  public Mode wantedMode = Mode.OFF;
   private double wantedVelocityRPS = 0;
 
   public ShooterSubsystem(ShooterIO io) {
     this.io = io;
-  }
-
-  public void setMode(Mode mode) {
-    this.wantedMode = mode;
   }
 
   public void setWantedVelocityRPS(double wantedVelocityRPS) {

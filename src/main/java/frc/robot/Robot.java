@@ -4,12 +4,16 @@
 
 package frc.robot;
 
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import frc.robot.commands.AimCommand;
 import frc.robot.commands.ShootCommand;
+import frc.robot.constants.FieldConstants;
 import frc.robot.constants.SwerveConstants;
 import frc.robot.subsystems.shooter.ShooterIO;
 import frc.robot.subsystems.shooter.ShooterSubsystem;
@@ -24,6 +28,7 @@ public class Robot extends TimedRobot {
   //  private final VisionFuelSubsystem visionFuel;
   private final XboxController controller = new XboxController(0);
 
+  private final AimCommand aimCommand;
   private final ShootCommand shootCommand;
 
   public Robot() {
@@ -32,6 +37,7 @@ public class Robot extends TimedRobot {
     shooter = new ShooterSubsystem(new ShooterIO());
     //    visionFuel = new VisionFuelSubsystem(new VisionFuelIO(swerve.getPoseBuffer()));
 
+    aimCommand = new AimCommand(swerve);
     shootCommand = new ShootCommand(shooter, swerve);
   }
 
@@ -53,15 +59,24 @@ public class Robot extends TimedRobot {
 
   @Override
   public void teleopInit() {
-    new Trigger(() -> controller.getRawButton(4)).whileTrue(shootCommand);
+    new Trigger(controller::getYButton).whileTrue(shootCommand);
+    new Trigger(controller::getAButton).whileTrue(aimCommand);
   }
 
   @Override
   public void teleopPeriodic() {
-    double vx = -controller.getLeftY() * SwerveConstants.maxLinearSpeed;
-    double vy = -controller.getLeftX() * SwerveConstants.maxLinearSpeed;
-    double omega = -controller.getRightX() * SwerveConstants.maxAngularSpeed;
+    double vx = controller.getLeftY() * SwerveConstants.maxLinearSpeed;
+    double vy = controller.getLeftX() * SwerveConstants.maxLinearSpeed;
+    double omega = controller.getRightX() * SwerveConstants.maxAngularSpeed;
 
+    if (swerve.wantedMode == SwerveSubsystem.Mode.AIM) {
+      Pose2d pose = swerve.getPose();
+      double angleToHub =
+          Math.atan2(
+              FieldConstants.Hub.redHubPosition.getY() - pose.getY(),
+              FieldConstants.Hub.redHubPosition.getX() - pose.getX());
+      omega = Rotation2d.fromRadians(angleToHub).minus(pose.getRotation()).getRadians();
+    }
     swerve.driveFieldRelative(new ChassisSpeeds(vx, vy, omega));
   }
 
