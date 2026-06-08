@@ -35,7 +35,7 @@ public class SwerveConstants {
   };
 
   /* Steer Motor PID Values */
-  public static final double steerKP = 100;
+  public static final double steerKP = 1000;
   public static final double steerKI = 0;
   public static final double steerKD = 0;
   public static final double steerKS = 0;
