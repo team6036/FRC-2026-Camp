@@ -95,6 +95,31 @@ public class SwerveConstants {
         default -> Units.inchesToMeters(4);
       }; // Prolly don't need this kind of thing cuz afaik they're all 4"j
 
+  public static final boolean driveMotorInverted =
+      switch (RobotConstants.swerveModuleType) {
+        case MK4n_L2 -> true;
+        case MK5n_L2 -> false;
+        case MK4i_L2 -> true;
+        default -> true;
+      }; // be most weary of drive motor inverted lowkey as results are inconclusive online
+
+  public static final boolean steerMotorInverted =
+      switch (RobotConstants.swerveModuleType) {
+        case MK4n_L2 -> true;
+        case MK5n_L2 -> true;
+        case MK4i_L2 -> true;
+        default -> true;
+      }; // this being wrong but having correct encoder offsets results in the frantic back and
+  // forth rather than align on enable
+
+  public static final boolean encoderInverted =
+      switch (RobotConstants.swerveModuleType) {
+        case MK4n_L2 -> false;
+        case MK5n_L2 -> false;
+        case MK4i_L2 -> false;
+        default -> false;
+      };
+
   public static final double[] encoderOffsets =
       switch (RobotConstants.robotType) {
         case CAMP_1 -> new double[] {
@@ -117,9 +142,9 @@ public class SwerveConstants {
         .withEncoderId(encoderIds[i])
         .withDriveMotorGearRatio(driveGearRatio)
         .withSteerMotorGearRatio(steerGearRatio)
-        .withDriveMotorInverted(true)
-        .withSteerMotorInverted(true)
-        .withEncoderInverted(false)
+        .withDriveMotorInverted(driveMotorInverted)
+        .withSteerMotorInverted(steerMotorInverted)
+        .withEncoderInverted(encoderInverted)
         .withWheelRadius(wheelDiameterMeters / 2)
         .withLocationX(moduleTranslations[i].getX())
         .withLocationY(moduleTranslations[i].getY())
