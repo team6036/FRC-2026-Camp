@@ -2,6 +2,7 @@ package frc.robot.util;
 
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.configs.TalonFXConfigurator;
+import java.util.function.Consumer;
 
 public class NTFullGains {
   private final NTDouble kP;
@@ -52,5 +53,15 @@ public class NTFullGains {
     configurator.refresh(config);
     update(config);
     configurator.apply(config);
+  }
+
+  public void update(TalonFXConfigurator configurator, Consumer<TalonFXConfiguration> updater) {
+    TalonFXConfiguration config = new TalonFXConfiguration();
+    configurator.refresh(config);
+    update(config); // ok so I think I have this right but it firstly yoinks values from our NT
+    updater.accept(
+        config); // and then with those values, this scales kP by the appropriate amount for the
+    // module type
+    configurator.apply(config); // and then we apply this one again
   }
 }

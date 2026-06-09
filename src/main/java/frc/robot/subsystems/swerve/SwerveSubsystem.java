@@ -97,7 +97,14 @@ public class SwerveSubsystem extends SubsystemBase {
       TalonFXConfigurator steerConfigurator = io.getModule(i).getSteerMotor().getConfigurator();
       TalonFXConfigurator driveConfigurator = io.getModule(i).getDriveMotor().getConfigurator();
 
-      if (updateDrive) SwerveConstants.driveGains.update(driveConfigurator);
+      if (updateDrive) {
+        RobotConstants.SwerveModuleType type = SwerveConstants.swerveModuleTypes[i];
+        SwerveConstants.driveGains.update(
+            driveConfigurator,
+            config -> {
+              config.Slot0.kP = SwerveConstants.scaleKP(type, config.Slot0.kP);
+            });
+      }
       if (updateSteer) SwerveConstants.steerGains.update(steerConfigurator);
     }
   }

@@ -46,8 +46,8 @@ public class SwerveConstants {
   public static final NTFullGains steerGains =
       new NTFullGains("Steer", steerKP, steerKI, steerKD, steerKS, steerKV, steerKA, steerKG);
 
-  /* Drive Motor PID Values */
-  public static final double driveKP = 0.03;
+  /* Drive Motor PID Values (MK4n L2 baseline) */
+  public static final double driveKP = 0.3;
   //  public static final double driveKP = 0.9993214286;
   public static final double driveKI = 0;
   public static final double driveKD = 0;
@@ -58,6 +58,22 @@ public class SwerveConstants {
   public static final double driveKA = 0;
   //  public static final double driveKA = 0.0331076786;
   public static final double driveKG = 0;
+
+  /**
+   * Converts the drive kP from the MK4n L2 baseline to the appropriate value for the given module
+   * type.
+   *
+   * @param type The swerve module type.
+   * @param value The drive kP value for the MK4n L2 baseline.
+   * @return THe converted drive kP value for the given module type.
+   */
+  public static double scaleKP(RobotConstants.SwerveModuleType type, double value) {
+    return value
+        * Math.pow(
+            getDriveGearRatio(RobotConstants.SwerveModuleType.MK4n_L2)
+                / getDriveGearRatio(type), // cvt from MK4n L2 baseline
+            2);
+  }
 
   public static final NTFullGains driveGains =
       new NTFullGains("Drive", driveKP, driveKI, driveKD, driveKS, driveKV, driveKA, driveKG);
@@ -71,42 +87,63 @@ public class SwerveConstants {
   // MK5n
   //  public static final double wheelDiameterMeters = 0.049782 * 2;
 
-  public static final double steerGearRatio =
-      switch (RobotConstants.swerveModuleType) {
-        case MK4n_L2 -> 18.75;
-        case MK5n_L2 -> 287d / 11;
-        case MK4i_L2 -> 150d / 7;
-        default -> 18.75; // MK4n L2
-      };
+  public static double getSteerGearRatio(RobotConstants.SwerveModuleType type) {
+    return switch (type) {
+      case MK4n_L2 -> 18.75;
+      case MK5n_L2 -> 287d / 11;
+      case MK4i_L2 -> 150d / 7;
+      default -> 18.75; // MK4n L2
+    };
+  }
 
-  public static final double driveGearRatio =
-      switch (RobotConstants.swerveModuleType) {
-        case MK4n_L2 -> 1d / ((16d / 50) * (27d / 17) * (15d / 45));
-        case MK5n_L2 -> 1d / ((14d / 54) * (32d / 25) * (15d / 30));
-        case MK4i_L2 -> 1d / ((14d / 50) * (27d / 17) * (15d / 45));
-        default -> 1d / ((16d / 50) * (27d / 17) * (15d / 45)); // MK4n L2
-      };
+  public static double getDriveGearRatio(RobotConstants.SwerveModuleType type) {
+    return switch (type) {
+      case MK4n_L2 -> 1d / ((16d / 50) * (27d / 17) * (15d / 45));
+      case MK5n_L2 -> 1d / ((14d / 54) * (32d / 25) * (15d / 30));
+      case MK4i_L2 -> 1d / ((14d / 50) * (27d / 17) * (15d / 45));
+      default -> 1d / ((16d / 50) * (27d / 17) * (15d / 45)); // MK4n L2
+    };
+  }
 
-  public static final double wheelDiameterMeters =
-      switch (RobotConstants.swerveModuleType) {
-        case MK4n_L2 -> Units.inchesToMeters(4);
-        case MK5n_L2 -> Units.inchesToMeters(4);
-        case MK4i_L2 -> Units.inchesToMeters(4);
-        default -> Units.inchesToMeters(4);
-      }; // Prolly don't need this kind of thing cuz afaik they're all 4"j
+  public static double getWheelDiameterMeters(RobotConstants.SwerveModuleType type) {
+    return switch (type) {
+      case MK4n_L2 -> Units.inchesToMeters(4);
+      case MK5n_L2 -> Units.inchesToMeters(4);
+      case MK4i_L2 -> Units.inchesToMeters(4);
+      default -> Units.inchesToMeters(4);
+    }; // Prolly don't need this kind of thing cuz afaik they're all 4"
+  }
 
   public static final double[] encoderOffsets =
       switch (RobotConstants.robotType) {
         case CAMP_1 -> new double[] {
           -0.279785, -0.254883, 0.176758, -0.028564
-        }; // This is for the test drivetrain but will change in camp
+        }; // TODO: CHANGE - This is for the test drivetrain but will change in camp
         default -> new double[] {0, 0, 0, 0};
+      };
+
+  public static final RobotConstants.SwerveModuleType[] swerveModuleTypes =
+      switch (RobotConstants.robotType) {
+        case CAMP_1 -> new RobotConstants.SwerveModuleType[] {
+          RobotConstants.SwerveModuleType.MK4n_L2,
+          RobotConstants.SwerveModuleType.MK4n_L2,
+          RobotConstants.SwerveModuleType.MK4n_L2,
+          RobotConstants.SwerveModuleType.MK4n_L2
+        };
+        default -> new RobotConstants.SwerveModuleType[] {
+          RobotConstants.SwerveModuleType.MK4n_L2,
+          RobotConstants.SwerveModuleType.MK4n_L2,
+          RobotConstants.SwerveModuleType.MK4n_L2,
+          RobotConstants.SwerveModuleType.MK4n_L2
+        };
       };
 
   private static SwerveModuleConstants<
           TalonFXConfiguration, TalonFXConfiguration, CANcoderConfiguration>
       createModuleConstants(int i) {
-    TalonFXConfiguration driveConfig = getDriveConfiguration();
+    RobotConstants.SwerveModuleType moduleType = swerveModuleTypes[i];
+
+    TalonFXConfiguration driveConfig = getDriveConfiguration(moduleType);
     TalonFXConfiguration steerConfig = getSteerConfiguration(encoderIds[i]);
     CANcoderConfiguration encoderConfig = new CANcoderConfiguration();
 
@@ -115,12 +152,12 @@ public class SwerveConstants {
         .withDriveMotorId(driveIds[i])
         .withSteerMotorId(steerIds[i])
         .withEncoderId(encoderIds[i])
-        .withDriveMotorGearRatio(driveGearRatio)
-        .withSteerMotorGearRatio(steerGearRatio)
+        .withDriveMotorGearRatio(getDriveGearRatio(moduleType))
+        .withSteerMotorGearRatio(getSteerGearRatio(moduleType))
         .withDriveMotorInverted(true)
         .withSteerMotorInverted(true)
         .withEncoderInverted(false)
-        .withWheelRadius(wheelDiameterMeters / 2)
+        .withWheelRadius(getWheelDiameterMeters(moduleType) / 2)
         .withLocationX(moduleTranslations[i].getX())
         .withLocationY(moduleTranslations[i].getY())
         .withDriveMotorGains(driveConfig.Slot0)
@@ -151,10 +188,10 @@ public class SwerveConstants {
     return config;
   }
 
-  private static TalonFXConfiguration getDriveConfiguration() {
+  private static TalonFXConfiguration getDriveConfiguration(RobotConstants.SwerveModuleType type) {
     TalonFXConfiguration config = new TalonFXConfiguration();
 
-    config.Slot0.kP = driveKP;
+    config.Slot0.kP = scaleKP(type, driveKP);
     config.Slot0.kI = driveKI;
     config.Slot0.kD = driveKD;
     config.Slot0.kS = driveKS;
