@@ -71,14 +71,37 @@ public class SwerveConstants {
   // MK5n
   //  public static final double wheelDiameterMeters = 0.049782 * 2;
 
-  // MK4 L2 (don't know how this works yet but I'll take it)
-  // See https://www.swervedrivespecialties.com/products/mk4-swerve-module
-  public static final double steerGearRatio = 18.75;
-  public static final double driveGearRatio = 1d / ((16d / 50) * (27d / 17) * (15d / 45));
-  public static final double wheelDiameterMeters = Units.inchesToMeters(4);
-  public static final double[] encoderOffsets = {-0.279785, -0.254883, 0.176758, -0.028564};
-  //  public static final double[] encoderOffsets = {-0.017, -20.258, -2.378, 14.291};  // These
-  // ones are the new ones, though I think they're in degrees
+  public static final double steerGearRatio =
+      switch (RobotConstants.swerveModuleType) {
+        case MK4n_L2 -> 18.75;
+        case MK5n_L2 -> 287d / 11;
+        case MK4i_L2 -> 150d / 7;
+        default -> 18.75; // MK4n L2
+      };
+
+  public static final double driveGearRatio =
+      switch (RobotConstants.swerveModuleType) {
+        case MK4n_L2 -> 1d / ((16d / 50) * (27d / 17) * (15d / 45));
+        case MK5n_L2 -> 1d / ((14d / 54) * (32d / 25) * (15d / 30));
+        case MK4i_L2 -> 1d / ((14d / 50) * (27d / 17) * (15d / 45));
+        default -> 1d / ((16d / 50) * (27d / 17) * (15d / 45)); // MK4n L2
+      };
+
+  public static final double wheelDiameterMeters =
+      switch (RobotConstants.swerveModuleType) {
+        case MK4n_L2 -> Units.inchesToMeters(4);
+        case MK5n_L2 -> Units.inchesToMeters(4);
+        case MK4i_L2 -> Units.inchesToMeters(4);
+        default -> Units.inchesToMeters(4);
+      }; // Prolly don't need this kind of thing cuz afaik they're all 4"j
+
+  public static final double[] encoderOffsets =
+      switch (RobotConstants.robotType) {
+        case CAMP_1 -> new double[] {
+          -0.279785, -0.254883, 0.176758, -0.028564
+        }; // This is for the test drivetrain but will change in camp
+        default -> new double[] {0, 0, 0, 0};
+      };
 
   private static SwerveModuleConstants<
           TalonFXConfiguration, TalonFXConfiguration, CANcoderConfiguration>
