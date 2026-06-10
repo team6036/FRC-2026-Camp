@@ -61,8 +61,7 @@ public class Robot extends TimedRobot {
 
   @Override
   public void teleopInit() {
-    new Trigger(controller::getYButton).whileTrue(shootCommand);
-    new Trigger(controller::getAButton).whileTrue(aimCommand);
+    new Trigger(() -> controller.getRawButton(4)).whileTrue(shootCommand);
   }
 
   @Override

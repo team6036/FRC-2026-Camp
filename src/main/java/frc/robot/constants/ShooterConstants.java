@@ -25,8 +25,9 @@ public class ShooterConstants {
 
   static {
     shooterVelocityMap.put(1.0, 25.0);
-    shooterVelocityMap.put(2.0, 35.0);
-    shooterVelocityMap.put(5.0, 48.0);
-    shooterVelocityMap.put(8.0, 90.0);
+    shooterVelocityMap.put(2.5, 32.0);
+    shooterVelocityMap.put(3.5, 42.0);
+    shooterVelocityMap.put(5.0, 52.0);
+    shooterVelocityMap.put(8.0, 80.0);
   }
 }
