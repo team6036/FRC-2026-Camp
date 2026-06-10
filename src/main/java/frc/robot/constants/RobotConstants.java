@@ -10,6 +10,7 @@ import java.util.Optional;
 public class RobotConstants {
 
   public enum RobotType {
+    CAMP_B,
     CAMP_C,
     CAMP_D,
     UNKNOWN
@@ -26,8 +27,9 @@ public class RobotConstants {
 
   public static final RobotType robotType =
       switch (serialNumber) {
-        case "0251EF71" -> RobotType.CAMP_D;
+        case "032381B0" -> RobotType.CAMP_B;
         case "0326F275" -> RobotType.CAMP_C;
+        case "0251EF71" -> RobotType.CAMP_D;
         default -> {
           if (Robot.isReal()) {
             new Alert(
@@ -45,6 +47,7 @@ public class RobotConstants {
 
   public static final SwerveModuleType swerveModuleType =
       switch (robotType) {
+        case CAMP_B -> SwerveModuleType.MK4n_L2;
         case CAMP_C -> SwerveModuleType.MK4i_L2;
         case CAMP_D -> SwerveModuleType.MK5n_L2;
         case UNKNOWN -> SwerveModuleType.MK4n_L2;
