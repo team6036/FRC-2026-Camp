@@ -66,6 +66,14 @@ public class Robot extends TimedRobot {
 
   @Override
   public void teleopPeriodic() {
+//    double lx = controller.getLeftX();
+//    double ly = controller.getLeftY();
+//    double rx = controller.getRightX();
+//
+//    Logger.log("Joysticks/X", lx);
+//    Logger.log("Joysticks/Y", ly);
+//    Logger.log("Joysticks/Omega", rx);
+
     double vx = controller.getLeftY() * SwerveConstants.maxLinearSpeed;
     double vy = controller.getLeftX() * SwerveConstants.maxLinearSpeed;
     double omega = controller.getRightX() * SwerveConstants.maxAngularSpeed;
@@ -88,6 +96,7 @@ public class Robot extends TimedRobot {
 
   @Override
   public void disabledPeriodic() {
+    Logger.log("RobotType", RobotConstants.robotType);
     Logger.log("SerialNumber", RobotController.getSerialNumber());
     swerve.stop();
   }
