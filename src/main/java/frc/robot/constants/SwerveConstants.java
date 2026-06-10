@@ -1,9 +1,10 @@
 package frc.robot.constants;
 
+import static com.ctre.phoenix6.signals.FeedbackSensorSourceValue.RemoteCANcoder;
+
 import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
-import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.VecBuilder;
@@ -11,7 +12,6 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.util.Units;
-import edu.wpi.first.wpilibj.RobotBase;
 import frc.robot.util.NTFullGains;
 import java.util.List;
 
@@ -106,7 +106,7 @@ public class SwerveConstants {
   public static final boolean steerMotorInverted =
       switch (RobotConstants.swerveModuleType) {
         case MK4n_L2 -> true;
-        case MK5n_L2 -> true;
+        case MK5n_L2 -> false; // unsure - maybe, gemini says true
         case MK4i_L2 -> true;
         default -> true;
       }; // this being wrong but having correct encoder offsets results in the frantic back and
@@ -115,16 +115,15 @@ public class SwerveConstants {
   public static final boolean encoderInverted =
       switch (RobotConstants.swerveModuleType) {
         case MK4n_L2 -> false;
-        case MK5n_L2 -> false;
+        case MK5n_L2 -> false; // sure
         case MK4i_L2 -> false;
         default -> false;
       };
 
   public static final double[] encoderOffsets =
       switch (RobotConstants.robotType) {
-        case CAMP_1 -> new double[] {
-          -0.279785, -0.254883, 0.176758, -0.028564
-        }; // This is for the test drivetrain but will change in camp
+        case CAMP_D -> new double[] {0.176025, -0.25, -0.265137, -0.027832};
+        case CAMP_C -> new double[] {0, 0, 0, 0};
         default -> new double[] {0, 0, 0, 0};
       };
 
@@ -168,10 +167,15 @@ public class SwerveConstants {
     config.Slot0.kA = steerKA;
     config.Slot0.kG = steerKG;
 
-    if (RobotBase.isReal()) {
+    /*if (RobotBase.isReal()) {
       config.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RemoteCANcoder;
       config.Feedback.FeedbackRemoteSensorID = encoderId;
-    }
+    } */
+    config.Feedback.FeedbackSensorSource = RemoteCANcoder;
+    config.Feedback.FeedbackRemoteSensorID = encoderId;
+    config.Feedback.RotorToSensorRatio =
+        steerGearRatio;
+    config.ClosedLoopGeneral.ContinuousWrap = true;
 
     return config;
   }

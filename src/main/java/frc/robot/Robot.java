@@ -89,6 +89,7 @@ public class Robot extends TimedRobot {
 
   @Override
   public void disabledPeriodic() {
+    Logger.log("SerialNumber", RobotController.getSerialNumber());
     swerve.stop();
   }
 
