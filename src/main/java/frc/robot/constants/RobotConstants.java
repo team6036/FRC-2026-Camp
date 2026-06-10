@@ -23,6 +23,12 @@ public class RobotConstants {
     MK4i_L2
   }
 
+  public enum DriveDirection {
+    NORMAL,
+    LEFT,
+    RIGHT
+  }
+
   public static final String serialNumber =
       Robot.isReal() ? RobotController.getSerialNumber() : "SIMULATION";
 
@@ -42,7 +48,7 @@ public class RobotConstants {
                 .set(true);
             yield RobotType.UNKNOWN;
           } else {
-            yield RobotType.CAMP_D;
+            yield RobotType.UNKNOWN;
           }
         }
       };
@@ -54,6 +60,15 @@ public class RobotConstants {
         case CAMP_C -> SwerveModuleType.MK4i_L2;
         case CAMP_D -> SwerveModuleType.MK5n_L2;
         case UNKNOWN -> SwerveModuleType.MK4n_L2;
+      };
+
+  public static final DriveDirection driveDirection =
+      switch (robotType) {
+        case CAMP_A -> DriveDirection.LEFT;
+        case CAMP_B -> DriveDirection.LEFT;
+        case CAMP_C -> DriveDirection.LEFT;
+        case CAMP_D -> DriveDirection.LEFT;
+        case UNKNOWN -> DriveDirection.NORMAL;
       };
 
   /* CAN Buses */

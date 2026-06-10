@@ -66,17 +66,23 @@ public class Robot extends TimedRobot {
 
   @Override
   public void teleopPeriodic() {
-//    double lx = controller.getLeftX();
-//    double ly = controller.getLeftY();
-//    double rx = controller.getRightX();
-//
-//    Logger.log("Joysticks/X", lx);
-//    Logger.log("Joysticks/Y", ly);
-//    Logger.log("Joysticks/Omega", rx);
-
-    double vx = controller.getLeftY() * SwerveConstants.maxLinearSpeed;
-    double vy = controller.getLeftX() * SwerveConstants.maxLinearSpeed;
-    double omega = controller.getRightX() * SwerveConstants.maxAngularSpeed;
+    double vx, vy, omega;
+    switch (RobotConstants.driveDirection) {
+      case LEFT:
+        vx = controller.getLeftX() * SwerveConstants.maxLinearSpeed;
+        vy = controller.getLeftY() * SwerveConstants.maxLinearSpeed;
+        omega = -controller.getRightX() * SwerveConstants.maxAngularSpeed;
+        break;
+      case RIGHT:
+        vx = -controller.getLeftX() * SwerveConstants.maxLinearSpeed;
+        vy = -controller.getLeftY() * SwerveConstants.maxLinearSpeed;
+        omega = -controller.getRightX() * SwerveConstants.maxAngularSpeed;
+        break;
+      default:
+        vx = -controller.getLeftY() * SwerveConstants.maxLinearSpeed;
+        vy = controller.getLeftX() * SwerveConstants.maxLinearSpeed;
+        omega = -controller.getRightX() * SwerveConstants.maxAngularSpeed;
+    }
 
     if (swerve.wantedMode == SwerveSubsystem.Mode.AIM) {
       Pose2d pose = swerve.getPose();
@@ -89,6 +95,7 @@ public class Robot extends TimedRobot {
     swerve.driveFieldRelative(new ChassisSpeeds(vx, vy, omega));
     Logger.log("SerialNumber", RobotController.getSerialNumber());
     Logger.log("SwerveType", RobotConstants.swerveModuleType);
+    Logger.log("DriveDirection", RobotConstants.driveDirection);
   }
 
   @Override
