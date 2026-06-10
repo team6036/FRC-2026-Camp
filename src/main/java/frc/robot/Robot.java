@@ -64,15 +64,28 @@ public class Robot extends TimedRobot {
 
   @Override
   public void teleopInit() {
-    new Trigger(controller::getYButton).whileTrue(shootCommand);
-    new Trigger(controller::getAButton).whileTrue(aimCommand);
+    new Trigger(() -> controller.getRawButton(4)).whileTrue(shootCommand);
   }
 
   @Override
   public void teleopPeriodic() {
-    double vx = controller.getLeftY() * SwerveConstants.maxLinearSpeed;
-    double vy = controller.getLeftX() * SwerveConstants.maxLinearSpeed;
-    double omega = controller.getRightX() * SwerveConstants.maxAngularSpeed;
+    double vx, vy, omega;
+    switch (RobotConstants.driveDirection) {
+      case LEFT:
+        vx = controller.getLeftX() * SwerveConstants.maxLinearSpeed;
+        vy = controller.getLeftY() * SwerveConstants.maxLinearSpeed;
+        omega = -controller.getRightX() * SwerveConstants.maxAngularSpeed;
+        break;
+      case RIGHT:
+        vx = -controller.getLeftX() * SwerveConstants.maxLinearSpeed;
+        vy = -controller.getLeftY() * SwerveConstants.maxLinearSpeed;
+        omega = -controller.getRightX() * SwerveConstants.maxAngularSpeed;
+        break;
+      default:
+        vx = -controller.getLeftY() * SwerveConstants.maxLinearSpeed;
+        vy = controller.getLeftX() * SwerveConstants.maxLinearSpeed;
+        omega = -controller.getRightX() * SwerveConstants.maxAngularSpeed;
+    }
 
     if (swerve.wantedMode == SwerveSubsystem.Mode.AIM) {
       Pose2d pose = swerve.getPose();
@@ -85,6 +98,7 @@ public class Robot extends TimedRobot {
     swerve.driveFieldRelative(new ChassisSpeeds(vx, vy, omega));
     Logger.log("SerialNumber", RobotController.getSerialNumber());
     Logger.log("SwerveType", RobotConstants.swerveModuleType);
+    Logger.log("DriveDirection", RobotConstants.driveDirection);
   }
 
   @Override
@@ -92,6 +106,7 @@ public class Robot extends TimedRobot {
 
   @Override
   public void disabledPeriodic() {
+    Logger.log("RobotType", RobotConstants.robotType);
     Logger.log("SerialNumber", RobotController.getSerialNumber());
     Logger.log("Offsets", Arrays.toString(encoderOffsets));
     Logger.log("robot", RobotConstants.robotType);

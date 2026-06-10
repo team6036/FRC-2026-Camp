@@ -1,10 +1,9 @@
 package frc.robot.constants;
 
-import static com.ctre.phoenix6.signals.FeedbackSensorSourceValue.RemoteCANcoder;
-
 import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.VecBuilder;
@@ -35,7 +34,7 @@ public class SwerveConstants {
   };
 
   /* Steer Motor PID Values */
-  public static final double steerKP = 100;
+  public static final double steerKP = 50;
   public static final double steerKI = 0;
   public static final double steerKD = 0;
   public static final double steerKS = 0;
@@ -93,7 +92,7 @@ public class SwerveConstants {
         case MK5n_L2 -> Units.inchesToMeters(4);
         case MK4i_L2 -> Units.inchesToMeters(4);
         default -> Units.inchesToMeters(4);
-      }; // Prolly don't need this kind of thing cuz afaik they're all 4"j
+      }; // Prolly don't need this kind of thing cuz afaik they're all 4"
 
   public static final boolean driveMotorInverted =
       switch (RobotConstants.swerveModuleType) {
@@ -122,6 +121,8 @@ public class SwerveConstants {
 
   public static final double[] encoderOffsets =
       switch (RobotConstants.robotType) {
+        case CAMP_A -> new double[] {0.224121 + 0.5, -0.244873, -0.321777 + 0.5, -0.038574};
+        case CAMP_B -> new double[] {-0.118408, -0.415039, 0.318115, -0.248779};
         case CAMP_D -> new double[] {0.176025, -0.25, -0.265137, -0.027832};
         case CAMP_C -> new double[] {0.354492, -.436035, -.182373, -.303955};
         default -> new double[] {0, 0, 0, 0};
@@ -167,11 +168,7 @@ public class SwerveConstants {
     config.Slot0.kA = steerKA;
     config.Slot0.kG = steerKG;
 
-    /*if (RobotBase.isReal()) {
-      config.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RemoteCANcoder;
-      config.Feedback.FeedbackRemoteSensorID = encoderId;
-    } */
-    config.Feedback.FeedbackSensorSource = RemoteCANcoder;
+    config.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RemoteCANcoder;
     config.Feedback.FeedbackRemoteSensorID = encoderId;
     config.Feedback.RotorToSensorRatio = steerGearRatio;
     config.ClosedLoopGeneral.ContinuousWrap = true;
