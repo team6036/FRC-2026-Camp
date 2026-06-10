@@ -27,7 +27,7 @@ public class RobotConstants {
   public static final RobotType robotType =
       switch (serialNumber) {
         case "0251EF71" -> RobotType.CAMP_D;
-        case "0326F275" -> RobotType.CAMP_C;
+        case "0326F27E" -> RobotType.CAMP_C;
         default -> {
           if (Robot.isReal()) {
             new Alert(

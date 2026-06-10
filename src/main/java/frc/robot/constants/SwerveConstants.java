@@ -123,7 +123,7 @@ public class SwerveConstants {
   public static final double[] encoderOffsets =
       switch (RobotConstants.robotType) {
         case CAMP_D -> new double[] {0.176025, -0.25, -0.265137, -0.027832};
-        case CAMP_C -> new double[] {0, 0, 0, 0};
+        case CAMP_C -> new double[] {0.354492, -.436035, -.182373, -.303955};
         default -> new double[] {0, 0, 0, 0};
       };
 
@@ -173,8 +173,7 @@ public class SwerveConstants {
     } */
     config.Feedback.FeedbackSensorSource = RemoteCANcoder;
     config.Feedback.FeedbackRemoteSensorID = encoderId;
-    config.Feedback.RotorToSensorRatio =
-        steerGearRatio;
+    config.Feedback.RotorToSensorRatio = steerGearRatio;
     config.ClosedLoopGeneral.ContinuousWrap = true;
 
     return config;

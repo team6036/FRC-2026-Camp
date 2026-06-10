@@ -4,6 +4,8 @@
 
 package frc.robot;
 
+import static frc.robot.constants.SwerveConstants.encoderOffsets;
+
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
@@ -22,6 +24,7 @@ import frc.robot.subsystems.shooter.ShooterSubsystem;
 import frc.robot.subsystems.swerve.SwerveIO;
 import frc.robot.subsystems.swerve.SwerveSubsystem;
 import frc.robot.util.Logger;
+import java.util.Arrays;
 
 public class Robot extends TimedRobot {
 
@@ -90,6 +93,8 @@ public class Robot extends TimedRobot {
   @Override
   public void disabledPeriodic() {
     Logger.log("SerialNumber", RobotController.getSerialNumber());
+    Logger.log("Offsets", Arrays.toString(encoderOffsets));
+    Logger.log("robot", RobotConstants.robotType);
     swerve.stop();
   }
 
