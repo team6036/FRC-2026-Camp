@@ -17,7 +17,6 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.constants.FieldConstants;
 import frc.robot.constants.RobotConstants;
-import frc.robot.constants.SwerveConstants;
 import frc.robot.subsystems.shooter.ShooterIO;
 import frc.robot.subsystems.shooter.ShooterSubsystem;
 import frc.robot.subsystems.swerve.SwerveIO;
@@ -48,6 +47,23 @@ public class Robot extends TimedRobot {
   @Override
   public void robotInit() {
     Logger.init();
+
+    RobotConstants.StartPosition startPosition = RobotConstants.startPosition;
+    swerve.resetPose(startPosition.pose);
+
+    Logger.log("SerialNumber", RobotController.getSerialNumber());
+    Logger.log("SwerveType", RobotConstants.swerveModuleType);
+    Logger.log("RobotType", RobotConstants.robotType);
+    Logger.log("Offsets", Arrays.toString(encoderOffsets));
+    Logger.log("StartPosition", startPosition);
+
+    new Trigger(() -> (controller.getRawButton(8)) && controller.getLeftTriggerAxis() > 0.5)
+        .onTrue(
+            Commands.runOnce(
+                () ->
+                    swerve.resetPose(
+                        new Pose2d(
+                            swerve.getPose().getTranslation(), Rotation2d.kZero)))); // + button
   }
 
   @Override
@@ -62,40 +78,10 @@ public class Robot extends TimedRobot {
   public void autonomousPeriodic() {}
 
   @Override
-  public void teleopInit() {
-    //    new Trigger(() -> controller.getRawButton(4)).whileTrue(shootCommand);
-    new Trigger(() -> (controller.getRawButton(8)) && controller.getLeftTriggerAxis() > 0.5)
-        .onTrue(Commands.runOnce(swerve::zeroGyro, swerve)); // + button
-  }
-
-  @Override
   public void teleopPeriodic() {
-    double vx, vy, omega;
-    switch (RobotConstants.driveDirection) {
-      case NORTH:
-        //        vx = -controller.getLeftX() * SwerveConstants.maxLinearSpeed;
-        //                vx = controller.getRawAxis(1) * SwerveConstants.maxLinearSpeed;
-        //        vy = controller.getLeftY() * SwerveConstants.maxLinearSpeed;
-        //                vy = controller.getRawAxis(0) * SwerveConstants.maxLinearSpeed;
-        //                        omega = -controller.getRightX() * SwerveConstants.maxAngularSpeed;
-        vx = controller.getLeftY() * SwerveConstants.maxLinearSpeed;
-        vy = controller.getLeftX() * SwerveConstants.maxLinearSpeed;
-        omega = controller.getRawAxis(3) * SwerveConstants.maxAngularSpeed;
-        Logger.log("Joysticks/x", vx);
-        Logger.log("Joysticks/y", vy);
-        Logger.log("Joysticks/omega", omega);
-        break;
-      case SOUTH:
-        vx = controller.getLeftX() * SwerveConstants.maxLinearSpeed;
-        vy = -controller.getLeftY() * SwerveConstants.maxLinearSpeed;
-        omega = -controller.getRightX() * SwerveConstants.maxAngularSpeed;
-        break;
-      default:
-        vx = controller.getLeftY() * SwerveConstants.maxLinearSpeed;
-        vy = controller.getLeftX() * SwerveConstants.maxLinearSpeed;
-        //        omega = -controller.getRightX() * SwerveConstants.maxAngularSpeed;
-        omega = controller.getRawAxis(3) * SwerveConstants.maxAngularSpeed;
-    }
+    double vx = controller.getLeftY();
+    double vy = controller.getLeftX();
+    double omega = controller.getRawAxis(3);
 
     if (swerve.wantedMode == SwerveSubsystem.Mode.AIM) {
       Pose2d pose = swerve.getPose();
@@ -105,10 +91,8 @@ public class Robot extends TimedRobot {
               FieldConstants.Hub.redHubPosition.getX() - pose.getX());
       omega = Rotation2d.fromRadians(angleToHub).minus(pose.getRotation()).getRadians();
     }
+
     swerve.driveFieldRelative(new ChassisSpeeds(vx, vy, omega));
-    Logger.log("SerialNumber", RobotController.getSerialNumber());
-    Logger.log("SwerveType", RobotConstants.swerveModuleType);
-    Logger.log("DriveDirection", RobotConstants.driveDirection);
   }
 
   @Override
@@ -116,10 +100,6 @@ public class Robot extends TimedRobot {
 
   @Override
   public void disabledPeriodic() {
-    Logger.log("RobotType", RobotConstants.robotType);
-    Logger.log("SerialNumber", RobotController.getSerialNumber());
-    Logger.log("Offsets", Arrays.toString(encoderOffsets));
-    Logger.log("robot", RobotConstants.robotType);
     swerve.stop();
   }
 

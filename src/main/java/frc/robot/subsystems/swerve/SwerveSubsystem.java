@@ -4,7 +4,6 @@ import com.ctre.phoenix6.configs.TalonFXConfigurator;
 import com.ctre.phoenix6.swerve.SwerveModule;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.interpolation.TimeInterpolatableBuffer;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.Timer;
@@ -42,12 +41,6 @@ public class SwerveSubsystem extends SubsystemBase {
 
   public SwerveSubsystem(SwerveIO io) {
     this.io = io;
-    //    io.resetPose(
-    //        new Pose2d(
-    //            FieldConstants.Hub.redHubPosition.getX() + 5.0,
-    //            FieldConstants.Hub.redHubPosition.getY(),
-    //            Rotation2d.kZero
-    //        ));
   }
 
   public void driveFieldRelative(ChassisSpeeds speeds) {
@@ -76,15 +69,15 @@ public class SwerveSubsystem extends SubsystemBase {
     return inputs.pose;
   }
 
+  public TimeInterpolatableBuffer<Pose2d> getPoseBuffer() {
+    return poseBuffer;
+  }
+
   public double getDistanceFromHub() {
     return inputs
         .pose
         .getTranslation()
         .getDistance(FieldConstants.Hub.redHubPosition.toTranslation2d());
-  }
-
-  public TimeInterpolatableBuffer<Pose2d> getPoseBuffer() {
-    return poseBuffer;
   }
 
   public void updateNT() {
@@ -127,7 +120,7 @@ public class SwerveSubsystem extends SubsystemBase {
     driveFieldRelative(new ChassisSpeeds());
   }
 
-  public void zeroGyro() {
-    io.resetPose(new Pose2d(inputs.pose.getX(), inputs.pose.getY(), Rotation2d.kZero));
+  public void resetPose(Pose2d pose) {
+    io.resetPose(pose);
   }
 }

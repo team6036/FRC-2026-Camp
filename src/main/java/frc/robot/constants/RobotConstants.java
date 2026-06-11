@@ -1,6 +1,9 @@
 package frc.robot.constants;
 
 import com.ctre.phoenix6.CANBus;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.RobotController;
@@ -21,12 +24,6 @@ public class RobotConstants {
     MK4n_L2,
     MK5n_L2,
     MK4i_L2
-  }
-
-  public enum DriveDirection {
-    NORMAL,
-    NORTH, // From North Korea (CNC) to South Korea (snack bin)
-    SOUTH
   }
 
   public static final String serialNumber =
@@ -62,13 +59,29 @@ public class RobotConstants {
         case UNKNOWN -> SwerveModuleType.MK4n_L2;
       };
 
-  public static final DriveDirection driveDirection =
+  /* Start Pose (we have no cameras :c) */
+  public static double redHubX = FieldConstants.Hub.redHubPosition.getX();
+  public static double redHubY = FieldConstants.Hub.redHubPosition.getY();
+
+  public enum StartPosition {
+    LEFT(new Pose2d(new Translation2d(redHubX + 2, redHubY - 4), Rotation2d.kCCW_90deg)),
+    RIGHT(new Pose2d(new Translation2d(redHubX + 2, redHubY + 4), Rotation2d.kCCW_90deg)),
+    CENTER(new Pose2d(new Translation2d(redHubX + 5, redHubY), Rotation2d.k180deg));
+
+    public Pose2d pose;
+
+    StartPosition(Pose2d pose) {
+      this.pose = pose;
+    }
+  }
+
+  public static final StartPosition startPosition =
       switch (robotType) {
-        case CAMP_A -> DriveDirection.NORMAL;
-        case CAMP_B -> DriveDirection.NORMAL;
-        case CAMP_C -> DriveDirection.NORMAL;
-        case CAMP_D -> DriveDirection.NORTH;
-        case UNKNOWN -> DriveDirection.NORMAL;
+        case CAMP_A -> StartPosition.CENTER;
+        case CAMP_B -> StartPosition.CENTER;
+        case CAMP_C -> StartPosition.CENTER;
+        case CAMP_D -> StartPosition.CENTER;
+        case UNKNOWN -> StartPosition.CENTER;
       };
 
   /* CAN Buses */
