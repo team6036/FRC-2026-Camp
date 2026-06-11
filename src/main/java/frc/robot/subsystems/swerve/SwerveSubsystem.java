@@ -125,4 +125,8 @@ public class SwerveSubsystem extends SubsystemBase {
   public void stop() {
     driveFieldRelative(new ChassisSpeeds());
   }
+
+  public void zeroGyro() {
+    io.resetPose(new Pose2d(inputs.pose.getX(), inputs.pose.getY(), Rotation2d.kZero));
+  }
 }
