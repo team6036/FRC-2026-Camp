@@ -75,19 +75,19 @@ public class Robot extends TimedRobot {
     double vx, vy, omega;
     switch (RobotConstants.driveDirection) {
       case NORTH:
-        vx = controller.getLeftY() * SwerveConstants.maxLinearSpeed;
-        vy = controller.getLeftX() * SwerveConstants.maxLinearSpeed;
-        omega = controller.getRightX() * SwerveConstants.maxAngularSpeed;
+        vx = -controller.getLeftX() * SwerveConstants.maxLinearSpeed;
+        vy = controller.getLeftY() * SwerveConstants.maxLinearSpeed;
+        omega = -controller.getRightX() * SwerveConstants.maxAngularSpeed;
         break;
       case SOUTH:
-        vx = -controller.getLeftX() * SwerveConstants.maxLinearSpeed;
+        vx = controller.getLeftX() * SwerveConstants.maxLinearSpeed;
         vy = -controller.getLeftY() * SwerveConstants.maxLinearSpeed;
         omega = -controller.getRightX() * SwerveConstants.maxAngularSpeed;
         break;
       default:
-        vx = -controller.getLeftY() * SwerveConstants.maxLinearSpeed;
-        vy = -controller.getLeftX() * SwerveConstants.maxLinearSpeed;
-        omega = controller.getRightX() * SwerveConstants.maxAngularSpeed;
+        vx = controller.getLeftY() * SwerveConstants.maxLinearSpeed;
+        vy = controller.getLeftX() * SwerveConstants.maxLinearSpeed;
+        omega = -controller.getRightX() * SwerveConstants.maxAngularSpeed;
     }
 
     if (swerve.wantedMode == SwerveSubsystem.Mode.AIM) {

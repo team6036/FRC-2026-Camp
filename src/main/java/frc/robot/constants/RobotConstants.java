@@ -25,7 +25,7 @@ public class RobotConstants {
 
   public enum DriveDirection {
     NORMAL,
-    NORTH, // From the North side of lab looking south
+    NORTH, // From North Korea (CNC) to South Korea (snack bin)
     SOUTH
   }
 
