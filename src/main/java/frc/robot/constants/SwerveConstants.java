@@ -127,9 +127,9 @@ public class SwerveConstants {
           -0.321777 + 1 + 2 * .125,
           -0.040771 + .5 + 2 * 0.125
         };
-        case CAMP_B -> new double[] {-0.118408, -0.415039, 0.318115, -0.248779};
-        case CAMP_D -> new double[] {0.176025, -0.25, -0.265137, -0.027832};
+        case CAMP_B -> new double[] {-0.118408, -0.415039 + 0.5, 0.318115, -0.248779};
         case CAMP_C -> new double[] {0.354492, -.436035, -.182373, -.303955};
+        case CAMP_D -> new double[] {0.176025, -0.25, -0.265137, -0.027832};
         default -> new double[] {0, 0, 0, 0};
       };
 
@@ -211,7 +211,7 @@ public class SwerveConstants {
   public static final int imuId = 50;
 
   /* Limits */
-  public static final double maxLinearSpeed = 1d;
-  public static final double maxAngularSpeed = Math.PI / 2;
+  public static final double maxLinearSpeed = 1.5d;
+  public static final double maxAngularSpeed = Math.PI;
   public static final double joystickDeadband = 0.05;
 }
