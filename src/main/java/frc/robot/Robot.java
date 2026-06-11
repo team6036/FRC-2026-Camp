@@ -15,8 +15,6 @@ import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
-import frc.robot.commands.AimCommand;
-import frc.robot.commands.ShootCommand;
 import frc.robot.constants.FieldConstants;
 import frc.robot.constants.RobotConstants;
 import frc.robot.constants.SwerveConstants;
@@ -34,8 +32,8 @@ public class Robot extends TimedRobot {
   //  private final VisionFuelSubsystem visionFuel;
   private final XboxController controller = new XboxController(0);
 
-  private final AimCommand aimCommand;
-  private final ShootCommand shootCommand;
+  //  private final AimCommand aimCommand;
+  //  private final ShootCommand shootCommand;
 
   public Robot() {
     super(0.02);
@@ -43,8 +41,8 @@ public class Robot extends TimedRobot {
     shooter = new ShooterSubsystem(new ShooterIO());
     //    visionFuel = new VisionFuelSubsystem(new VisionFuelIO(swerve.getPoseBuffer()));
 
-    aimCommand = new AimCommand(swerve);
-    shootCommand = new ShootCommand(shooter, swerve);
+    //    aimCommand = new AimCommand(swerve);
+    //    shootCommand = new ShootCommand(shooter, swerve);
   }
 
   @Override
@@ -65,7 +63,7 @@ public class Robot extends TimedRobot {
 
   @Override
   public void teleopInit() {
-    new Trigger(() -> controller.getRawButton(4)).whileTrue(shootCommand);
+    //    new Trigger(() -> controller.getRawButton(4)).whileTrue(shootCommand);
     new Trigger(() -> (controller.getRawButton(8)) && controller.getLeftTriggerAxis() > 0.5)
         .onTrue(Commands.runOnce(swerve::zeroGyro, swerve)); // + button
   }
@@ -75,9 +73,17 @@ public class Robot extends TimedRobot {
     double vx, vy, omega;
     switch (RobotConstants.driveDirection) {
       case NORTH:
-        vx = -controller.getLeftX() * SwerveConstants.maxLinearSpeed;
-        vy = controller.getLeftY() * SwerveConstants.maxLinearSpeed;
-        omega = -controller.getRightX() * SwerveConstants.maxAngularSpeed;
+        //        vx = -controller.getLeftX() * SwerveConstants.maxLinearSpeed;
+        //                vx = controller.getRawAxis(1) * SwerveConstants.maxLinearSpeed;
+        //        vy = controller.getLeftY() * SwerveConstants.maxLinearSpeed;
+        //                vy = controller.getRawAxis(0) * SwerveConstants.maxLinearSpeed;
+        //                        omega = -controller.getRightX() * SwerveConstants.maxAngularSpeed;
+        vx = controller.getLeftY() * SwerveConstants.maxLinearSpeed;
+        vy = controller.getLeftX() * SwerveConstants.maxLinearSpeed;
+        omega = controller.getRawAxis(3) * SwerveConstants.maxAngularSpeed;
+        Logger.log("Joysticks/x", vx);
+        Logger.log("Joysticks/y", vy);
+        Logger.log("Joysticks/omega", omega);
         break;
       case SOUTH:
         vx = controller.getLeftX() * SwerveConstants.maxLinearSpeed;
@@ -87,7 +93,8 @@ public class Robot extends TimedRobot {
       default:
         vx = controller.getLeftY() * SwerveConstants.maxLinearSpeed;
         vy = controller.getLeftX() * SwerveConstants.maxLinearSpeed;
-        omega = -controller.getRightX() * SwerveConstants.maxAngularSpeed;
+        //        omega = -controller.getRightX() * SwerveConstants.maxAngularSpeed;
+        omega = controller.getRawAxis(3) * SwerveConstants.maxAngularSpeed;
     }
 
     if (swerve.wantedMode == SwerveSubsystem.Mode.AIM) {

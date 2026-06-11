@@ -42,11 +42,12 @@ public class SwerveSubsystem extends SubsystemBase {
 
   public SwerveSubsystem(SwerveIO io) {
     this.io = io;
-    io.resetPose(
-        new Pose2d(
-            FieldConstants.Hub.redHubPosition.getX() + 5.0,
-            FieldConstants.Hub.redHubPosition.getY(),
-            Rotation2d.kZero));
+    //    io.resetPose(
+    //        new Pose2d(
+    //            FieldConstants.Hub.redHubPosition.getX() + 5.0,
+    //            FieldConstants.Hub.redHubPosition.getY(),
+    //            Rotation2d.kZero
+    //        ));
   }
 
   public void driveFieldRelative(ChassisSpeeds speeds) {

@@ -67,7 +67,7 @@ public class RobotConstants {
         case CAMP_A -> DriveDirection.NORMAL;
         case CAMP_B -> DriveDirection.NORMAL;
         case CAMP_C -> DriveDirection.NORMAL;
-        case CAMP_D -> DriveDirection.NORMAL;
+        case CAMP_D -> DriveDirection.NORTH;
         case UNKNOWN -> DriveDirection.NORMAL;
       };
 
