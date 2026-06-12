@@ -44,9 +44,24 @@ public class SwerveSubsystem extends SubsystemBase {
   }
 
   public void driveFieldRelative(ChassisSpeeds speeds) {
-    double vx = speeds.vxMetersPerSecond;
-    double vy = speeds.vyMetersPerSecond;
-    double omega = speeds.omegaRadiansPerSecond;
+    double vx, vy, omega;
+    switch (RobotConstants.startPosition) {
+      case LEFT:
+        vx = speeds.vyMetersPerSecond;
+        vy = -speeds.vxMetersPerSecond;
+        omega = speeds.omegaRadiansPerSecond;
+        break;
+      case RIGHT:
+        vx = -speeds.vyMetersPerSecond;
+        vy = speeds.vxMetersPerSecond;
+        omega = speeds.omegaRadiansPerSecond;
+        break;
+      default:
+        vx = speeds.vxMetersPerSecond;
+        vy = speeds.vyMetersPerSecond;
+        omega = speeds.omegaRadiansPerSecond;
+    }
+
     if (RobotConstants.onBlue()) {
       vx = -vx;
       vy = -vy;
