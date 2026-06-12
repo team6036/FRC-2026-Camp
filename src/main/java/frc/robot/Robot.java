@@ -15,6 +15,7 @@ import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import frc.robot.commands.ShootCommand;
 import frc.robot.constants.FieldConstants;
 import frc.robot.constants.RobotConstants;
 import frc.robot.subsystems.shooter.ShooterIO;
@@ -32,7 +33,7 @@ public class Robot extends TimedRobot {
   private final XboxController controller = new XboxController(0);
 
   //  private final AimCommand aimCommand;
-  //  private final ShootCommand shootCommand;
+  private final ShootCommand shootCommand;
 
   public Robot() {
     super(0.02);
@@ -41,7 +42,7 @@ public class Robot extends TimedRobot {
     //    visionFuel = new VisionFuelSubsystem(new VisionFuelIO(swerve.getPoseBuffer()));
 
     //    aimCommand = new AimCommand(swerve);
-    //    shootCommand = new ShootCommand(shooter, swerve);
+    shootCommand = new ShootCommand(shooter, swerve);
   }
 
   @Override
@@ -57,6 +58,7 @@ public class Robot extends TimedRobot {
     Logger.log("Offsets", Arrays.toString(encoderOffsets));
     Logger.log("StartPosition", startPosition);
 
+    new Trigger(() -> controller.getRawButton(4)).whileTrue(shootCommand);
     new Trigger(() -> (controller.getRawButton(8)) && controller.getLeftTriggerAxis() > 0.5)
         .onTrue(
             Commands.runOnce(
@@ -82,6 +84,11 @@ public class Robot extends TimedRobot {
     double vx = controller.getLeftY();
     double vy = controller.getLeftX();
     double omega = controller.getRawAxis(3);
+    Logger.log("omega0", omega);
+    if (omega == 0) {
+      omega = -controller.getRightX();
+    }
+    Logger.log("omega1", omega);
 
     if (swerve.wantedMode == SwerveSubsystem.Mode.AIM) {
       Pose2d pose = swerve.getPose();
