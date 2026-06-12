@@ -38,9 +38,11 @@ public class ShooterSubsystem extends SubsystemBase {
     switch (wantedMode) {
       case SHOOTING:
         io.setTopVelocity(wantedVelocityRPS);
-        if (inputs.topLeftVelocityRPS >= wantedVelocityRPS * 0.9) {
-          io.setBottomVelocity(wantedVelocityRPS);
-        }
+        // if (inputs.topLeftVelocityRPS >= wantedVelocityRPS * 0.2) {
+        //
+        // }
+        Logger.log("pre speed lower", "done");
+        io.setBottomVelocity(wantedVelocityRPS);
         break;
       case OFF:
       default:

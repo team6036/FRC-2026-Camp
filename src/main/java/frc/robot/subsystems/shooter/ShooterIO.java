@@ -9,6 +9,7 @@ import com.ctre.phoenix6.signals.MotorAlignmentValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.units.measure.AngularVelocity;
 import frc.robot.constants.ShooterConstants;
+import frc.robot.util.Logger;
 
 public class ShooterIO {
 
@@ -75,11 +76,15 @@ public class ShooterIO {
   }
 
   public void setTopVelocity(double velocityRPS) {
-    topLeftMotor.setControl(velocityRequest.withVelocity(velocityRPS));
+    topLeftMotor.setControl(velocityRequest.withVelocity(-velocityRPS));
   }
 
   public void setBottomVelocity(double velocityRPS) {
-    bottomLeftMotor.setControl(velocityRequest.withVelocity(-velocityRPS));
+    bottomLeftMotor.setControl(velocityRequest.withVelocity(velocityRPS));
+    bottomRightMotor.setControl(velocityRequest.withVelocity(velocityRPS));
+    Logger.log("post speed lower", "post");
+    Logger.log("br velocity", bottomRightMotor.getVelocity().getValueAsDouble());
+    Logger.log("bl velocity", bottomLeftMotor.getVelocity().getValueAsDouble());
   }
 
   public void stop() {
