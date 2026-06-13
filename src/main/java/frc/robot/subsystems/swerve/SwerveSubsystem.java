@@ -4,7 +4,6 @@ import com.ctre.phoenix6.configs.TalonFXConfigurator;
 import com.ctre.phoenix6.swerve.SwerveModule;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.interpolation.TimeInterpolatableBuffer;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.Timer;
@@ -18,8 +17,14 @@ import frc.robot.util.Logger;
 
 public class SwerveSubsystem extends SubsystemBase {
 
+  public enum Mode {
+    NORMAL,
+    AIM,
+  }
+
   private final SwerveIO io;
   private final SwerveIOInputs inputs = new SwerveIOInputs();
+  public Mode wantedMode = Mode.NORMAL;
 
   private final TimeInterpolatableBuffer<Pose2d> poseBuffer =
       TimeInterpolatableBuffer.createBuffer(VisionConstants.pieceStaleTime);
@@ -36,17 +41,27 @@ public class SwerveSubsystem extends SubsystemBase {
 
   public SwerveSubsystem(SwerveIO io) {
     this.io = io;
-    io.resetPose(
-        new Pose2d(
-            FieldConstants.Hub.redHubPosition.getX() + 4,
-            FieldConstants.Hub.redHubPosition.getY(),
-            Rotation2d.k180deg));
   }
 
   public void driveFieldRelative(ChassisSpeeds speeds) {
-    double vx = speeds.vxMetersPerSecond;
-    double vy = speeds.vyMetersPerSecond;
-    double omega = speeds.omegaRadiansPerSecond;
+    double vx, vy, omega;
+    switch (RobotConstants.startPosition) {
+      case LEFT:
+        vx = speeds.vyMetersPerSecond;
+        vy = -speeds.vxMetersPerSecond;
+        omega = speeds.omegaRadiansPerSecond;
+        break;
+      case RIGHT:
+        vx = -speeds.vyMetersPerSecond;
+        vy = speeds.vxMetersPerSecond;
+        omega = speeds.omegaRadiansPerSecond;
+        break;
+      default:
+        vx = speeds.vxMetersPerSecond;
+        vy = speeds.vyMetersPerSecond;
+        omega = speeds.omegaRadiansPerSecond;
+    }
+
     if (RobotConstants.onBlue()) {
       vx = -vx;
       vy = -vy;
@@ -69,15 +84,15 @@ public class SwerveSubsystem extends SubsystemBase {
     return inputs.pose;
   }
 
+  public TimeInterpolatableBuffer<Pose2d> getPoseBuffer() {
+    return poseBuffer;
+  }
+
   public double getDistanceFromHub() {
     return inputs
         .pose
         .getTranslation()
         .getDistance(FieldConstants.Hub.redHubPosition.toTranslation2d());
-  }
-
-  public TimeInterpolatableBuffer<Pose2d> getPoseBuffer() {
-    return poseBuffer;
   }
 
   public void updateNT() {
@@ -101,9 +116,13 @@ public class SwerveSubsystem extends SubsystemBase {
     io.updateInputs(inputs);
     poseBuffer.addSample(Timer.getFPGATimestamp(), inputs.pose);
 
+    Logger.log("Subsystems/Swerve/WantedMode", wantedMode);
+
     Logger.log("Subsystems/Swerve/SwerveModuleStates", inputs.moduleStates);
     Logger.log("Subsystems/Swerve/Pose", inputs.pose);
     Logger.log("Subsystems/Swerve/Speeds/Actual", inputs.speeds);
+
+    Logger.log("Subsystems/Swerve/DistanceFromHub", getDistanceFromHub());
 
     updateNT();
   }
@@ -114,5 +133,9 @@ public class SwerveSubsystem extends SubsystemBase {
 
   public void stop() {
     driveFieldRelative(new ChassisSpeeds());
+  }
+
+  public void resetPose(Pose2d pose) {
+    io.resetPose(pose);
   }
 }

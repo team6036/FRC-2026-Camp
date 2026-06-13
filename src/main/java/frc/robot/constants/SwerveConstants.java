@@ -11,7 +11,6 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.util.Units;
-import edu.wpi.first.wpilibj.RobotBase;
 import frc.robot.util.NTFullGains;
 import java.util.List;
 
@@ -35,7 +34,7 @@ public class SwerveConstants {
   };
 
   /* Steer Motor PID Values */
-  public static final double steerKP = 10;
+  public static final double steerKP = 50;
   public static final double steerKI = 0;
   public static final double steerKD = 0;
   public static final double steerKS = 0;
@@ -71,14 +70,63 @@ public class SwerveConstants {
   // MK5n
   //  public static final double wheelDiameterMeters = 0.049782 * 2;
 
-  // MK4 L2 (don't know how this works yet but I'll take it)
-  // See https://www.swervedrivespecialties.com/products/mk4-swerve-module
-  public static final double steerGearRatio = 12.8;
-  public static final double driveGearRatio = 1d / ((14d / 50) * (27d / 17) * (15d / 45));
-  public static final double wheelDiameterMeters = Units.inchesToMeters(4);
-  public static final double[] encoderOffsets = {0.250488, -0.217773, -0.471191, -0.178467};
-  //  public static final double[] encoderOffsets = {-0.017, -20.258, -2.378, 14.291};  // These
-  // ones are the new ones, though I think they're in degrees
+  public static final double steerGearRatio =
+      switch (RobotConstants.swerveModuleType) {
+        case MK4n_L2 -> 18.75;
+        case MK5n_L2 -> 287d / 11;
+        case MK4i_L2 -> 150d / 7;
+        default -> 18.75; // MK4n L2
+      };
+
+  public static final double driveGearRatio =
+      switch (RobotConstants.swerveModuleType) {
+        case MK4n_L2 -> 1d / ((16d / 50) * (27d / 17) * (15d / 45));
+        case MK5n_L2 -> 1d / ((14d / 54) * (32d / 25) * (15d / 30));
+        case MK4i_L2 -> 1d / ((14d / 50) * (27d / 17) * (15d / 45));
+        default -> 1d / ((16d / 50) * (27d / 17) * (15d / 45)); // MK4n L2
+      };
+
+  public static final double wheelDiameterMeters =
+      switch (RobotConstants.swerveModuleType) {
+        case MK4n_L2 -> Units.inchesToMeters(4);
+        case MK5n_L2 -> Units.inchesToMeters(4);
+        case MK4i_L2 -> Units.inchesToMeters(4);
+        default -> Units.inchesToMeters(4);
+      }; // Prolly don't need this kind of thing cuz afaik they're all 4"
+
+  public static final boolean driveMotorInverted =
+      switch (RobotConstants.swerveModuleType) {
+        case MK4n_L2 -> true;
+        case MK5n_L2 -> false;
+        case MK4i_L2 -> true;
+        default -> true;
+      }; // be most weary of drive motor inverted lowkey as results are inconclusive online
+
+  public static final boolean steerMotorInverted =
+      switch (RobotConstants.swerveModuleType) {
+        case MK4n_L2 -> true;
+        case MK5n_L2 -> false; // unsure - maybe, gemini says true
+        case MK4i_L2 -> true;
+        default -> true;
+      }; // this being wrong but having correct encoder offsets results in the frantic back and
+  // forth rather than align on enable
+
+  public static final boolean encoderInverted =
+      switch (RobotConstants.swerveModuleType) {
+        case MK4n_L2 -> false;
+        case MK5n_L2 -> false; // sure
+        case MK4i_L2 -> false;
+        default -> false;
+      };
+
+  public static final double[] encoderOffsets =
+      switch (RobotConstants.robotType) {
+        case CAMP_A -> new double[] {0.225342, -0.250732 + 0.5, -0.322021, -0.037354 + 0.5};
+        case CAMP_B -> new double[] {-0.118408, -0.415039 + 0.5, 0.318115, -0.248779};
+        case CAMP_D -> new double[] {0.176025, -0.25, -0.265137, -0.027832};
+        case CAMP_C -> new double[] {0.354492, -.436035, -.182373, -.303955};
+        default -> new double[] {0, 0, 0, 0};
+      };
 
   private static SwerveModuleConstants<
           TalonFXConfiguration, TalonFXConfiguration, CANcoderConfiguration>
@@ -94,6 +142,9 @@ public class SwerveConstants {
         .withEncoderId(encoderIds[i])
         .withDriveMotorGearRatio(driveGearRatio)
         .withSteerMotorGearRatio(steerGearRatio)
+        .withDriveMotorInverted(driveMotorInverted)
+        .withSteerMotorInverted(steerMotorInverted)
+        .withEncoderInverted(encoderInverted)
         .withWheelRadius(wheelDiameterMeters / 2)
         .withLocationX(moduleTranslations[i].getX())
         .withLocationY(moduleTranslations[i].getY())
@@ -117,10 +168,10 @@ public class SwerveConstants {
     config.Slot0.kA = steerKA;
     config.Slot0.kG = steerKG;
 
-    if (RobotBase.isReal()) {
-      config.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RemoteCANcoder;
-      config.Feedback.FeedbackRemoteSensorID = encoderId;
-    }
+    config.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RemoteCANcoder;
+    config.Feedback.FeedbackRemoteSensorID = encoderId;
+    config.Feedback.RotorToSensorRatio = steerGearRatio;
+    config.ClosedLoopGeneral.ContinuousWrap = true;
 
     return config;
   }
@@ -155,7 +206,7 @@ public class SwerveConstants {
   public static final int imuId = 50;
 
   /* Limits */
-  public static final double maxLinearSpeed = 1d;
-  public static final double maxAngularSpeed = Math.PI / 2;
+  public static final double maxLinearSpeed = 1.5d;
+  public static final double maxAngularSpeed = Math.PI;
   public static final double joystickDeadband = 0.05;
 }

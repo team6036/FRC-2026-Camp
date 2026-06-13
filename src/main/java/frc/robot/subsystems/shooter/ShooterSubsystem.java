@@ -7,14 +7,8 @@ import frc.robot.util.Logger;
 
 public class ShooterSubsystem extends SubsystemBase {
 
-  public enum Mode {
-    OFF,
-    SHOOTING,
-  }
-
   private final ShooterIO io;
   private final ShooterIOInputs inputs = new ShooterIOInputs();
-  private Mode wantedMode = Mode.OFF;
   private double wantedVelocityRPS = 0;
   private boolean isShooting = false;
 
@@ -48,6 +42,9 @@ public class ShooterSubsystem extends SubsystemBase {
   @Override
   public void periodic() {
     io.updateInputs(inputs);
+
+    Logger.log("Subsystems/Shooter/BottomLeftPresent", inputs.bottomLeftPresent);
+    Logger.log("Subsystems/Shooter/BottomRightPresent", inputs.bottomRightPresent);
 
     Logger.log("Subsystems/Shooter/BottomLeftVelocity", inputs.bottomLeftVelocityRPS);
     Logger.log("Subsystems/Shooter/BottomRightVelocity", inputs.bottomRightVelocityRPS);

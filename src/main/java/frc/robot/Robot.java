@@ -8,7 +8,6 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
-import frc.robot.constants.SwerveConstants;
 import frc.robot.subsystems.shooter.ShooterIO;
 import frc.robot.subsystems.shooter.ShooterSubsystem;
 import frc.robot.subsystems.swerve.SwerveIO;
@@ -53,19 +52,19 @@ public class Robot extends TimedRobot {
 
   @Override
   public void teleopPeriodic() {
-    double vx = controller.getLeftY() * SwerveConstants.maxLinearSpeed;
-    double vy = controller.getLeftX() * SwerveConstants.maxLinearSpeed;
-    double omega = controller.getRightX() * SwerveConstants.maxAngularSpeed;
+    double vx = controller.getLeftY();
+    double vy = controller.getLeftX();
+    double omega = controller.getRightX();
 
     swerve.driveFieldRelative(new ChassisSpeeds(vx, vy, omega));
 
     // ===== YOUR JOB: Make shooter shoot at correct velocity =====
     if (controller.getYButton()) {
-//      double distance = swerve.getDistanceFromHub();
-//      double velocity = shooter.getVelocityForDistance(distance);
-//      shooter.shoot(velocity);
+      //      double distance = swerve.getDistanceFromHub();
+      //      double velocity = shooter.getVelocityForDistance(distance);
+      //      shooter.shoot(velocity);
     } else {
-//      shooter.stop();
+      //      shooter.stop();
     }
     // ============================================================
   }
