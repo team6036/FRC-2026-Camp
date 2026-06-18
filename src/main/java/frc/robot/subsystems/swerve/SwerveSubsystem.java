@@ -3,10 +3,16 @@ package frc.robot.subsystems.swerve;
 import com.ctre.phoenix6.configs.TalonFXConfigurator;
 import com.ctre.phoenix6.swerve.SwerveModule;
 import com.ctre.phoenix6.swerve.SwerveRequest;
+import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.interpolation.TimeInterpolatableBuffer;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
-import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.networktables.BooleanSubscriber;
+import edu.wpi.first.networktables.DoubleSubscriber;
+import edu.wpi.first.networktables.NetworkTable;
+import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.constants.FieldConstants;
 import frc.robot.constants.RobotConstants;
@@ -17,17 +23,14 @@ import frc.robot.util.Logger;
 
 public class SwerveSubsystem extends SubsystemBase {
 
-  public enum Mode {
-    NORMAL,
-    AIM,
-  }
-
   private final SwerveIO io;
   private final SwerveIOInputs inputs = new SwerveIOInputs();
-  public Mode wantedMode = Mode.NORMAL;
 
-  private final TimeInterpolatableBuffer<Pose2d> poseBuffer =
-      TimeInterpolatableBuffer.createBuffer(VisionConstants.pieceStaleTime);
+  private final PIDController hubAimController = new PIDController(SwerveConstants.aimKp, 0, 0);
+  private final PIDController fuelAimController = new PIDController(SwerveConstants.chaseKp, 0, 0);
+
+  private final BooleanSubscriber hasTargetSub;
+  private final DoubleSubscriber targetXSub;
 
   private final SwerveRequest.FieldCentric driveRequest =
       new SwerveRequest.FieldCentric()
@@ -37,13 +40,28 @@ public class SwerveSubsystem extends SubsystemBase {
           .withDriveRequestType(SwerveModule.DriveRequestType.Velocity)
           .withSteerRequestType(SwerveModule.SteerRequestType.Position);
 
+  private final SwerveRequest.RobotCentric chaseRequest =
+      new SwerveRequest.RobotCentric()
+          .withDriveRequestType(SwerveModule.DriveRequestType.Velocity)
+          .withSteerRequestType(SwerveModule.SteerRequestType.Position);
+
   private ChassisSpeeds targetSpeeds = new ChassisSpeeds();
 
   public SwerveSubsystem(SwerveIO io) {
     this.io = io;
+
+    hubAimController.enableContinuousInput(-Math.PI, Math.PI);
+
+    NetworkTable visionTable = NetworkTableInstance.getDefault().getTable("Vision");
+    hasTargetSub = visionTable.getBooleanTopic("hasTarget").subscribe(false);
+    targetXSub = visionTable.getDoubleTopic("targetX").subscribe(0.0);
   }
 
-  public void driveFieldRelative(ChassisSpeeds speeds) {
+  public Pose2d getPose() {
+    return inputs.pose;
+  }
+
+  public void drive(ChassisSpeeds speeds) {
     double vx, vy, omega;
     switch (RobotConstants.startPosition) {
       case LEFT:
@@ -80,19 +98,50 @@ public class SwerveSubsystem extends SubsystemBase {
     io.setControl(driveRequest.withVelocityX(vx).withVelocityY(vy).withRotationalRate(omega));
   }
 
-  public Pose2d getPose() {
-    return inputs.pose;
+  public boolean hasTarget() {
+    return hasTargetSub.getAsBoolean();
   }
 
-  public TimeInterpolatableBuffer<Pose2d> getPoseBuffer() {
-    return poseBuffer;
+  public void chaseTarget() {
+    double error = targetXSub.getAsDouble() - (VisionConstants.frameWidth / 2d);
+    double omega =
+        MathUtil.clamp(
+            -fuelAimController.calculate(error, 0),
+            -SwerveConstants.maxAngularSpeed,
+            SwerveConstants.maxAngularSpeed);
+    io.setControl(
+        chaseRequest
+            .withVelocityX(SwerveConstants.chaseKp)
+            .withVelocityY(0.0)
+            .withRotationalRate(omega));
+  }
+
+  public boolean isAimedAtTarget() {
+    return fuelAimController.atSetpoint();
   }
 
   public double getDistanceFromHub() {
-    return inputs
-        .pose
+    return getPose()
         .getTranslation()
         .getDistance(FieldConstants.Hub.redHubPosition.toTranslation2d());
+  }
+
+  public void aimAtHub(double vx, double vy) {
+    Translation2d hubPosition = FieldConstants.Hub.redHubPosition.toTranslation2d();
+    Translation2d toHub = hubPosition.minus(inputs.pose.getTranslation());
+    Rotation2d targetAngle = new Rotation2d(toHub.getX(), toHub.getY());
+    double currentAngle = inputs.pose.getRotation().getRadians();
+    double omega =
+        MathUtil.clamp(
+            hubAimController.calculate(currentAngle, targetAngle.getRadians()),
+            -SwerveConstants.maxAngularSpeed,
+            SwerveConstants.maxAngularSpeed);
+
+    drive(new ChassisSpeeds(vx, vy, omega));
+  }
+
+  public boolean isAimedAtHub() {
+    return hubAimController.atSetpoint();
   }
 
   public void updateNT() {
@@ -114,15 +163,16 @@ public class SwerveSubsystem extends SubsystemBase {
   @Override
   public void periodic() {
     io.updateInputs(inputs);
-    poseBuffer.addSample(Timer.getFPGATimestamp(), inputs.pose);
-
-    Logger.log("Subsystems/Swerve/WantedMode", wantedMode);
 
     Logger.log("Subsystems/Swerve/SwerveModuleStates", inputs.moduleStates);
-    Logger.log("Subsystems/Swerve/Pose", inputs.pose);
+    Logger.log("Subsystems/Swerve/Pose", getPose());
     Logger.log("Subsystems/Swerve/Speeds/Actual", inputs.speeds);
 
     Logger.log("Subsystems/Swerve/DistanceFromHub", getDistanceFromHub());
+    Logger.log("Subsystems/Swerve/Vision/HasTarget", hasTarget());
+    Logger.log("Subsystems/Swerve/Vision/TargetX", targetXSub.getAsDouble());
+    Logger.log("Subsystems/Swerve/Swerve/AimedAtFuel", isAimedAtTarget());
+    Logger.log("Subsystems/Swerve/AimedAtHub", isAimedAtHub());
 
     updateNT();
   }
@@ -132,7 +182,7 @@ public class SwerveSubsystem extends SubsystemBase {
   }
 
   public void stop() {
-    driveFieldRelative(new ChassisSpeeds());
+    drive(new ChassisSpeeds());
   }
 
   public void resetPose(Pose2d pose) {

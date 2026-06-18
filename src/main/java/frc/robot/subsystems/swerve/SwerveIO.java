@@ -8,13 +8,10 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import frc.robot.constants.SwerveConstants;
 import frc.robot.constants.VisionConstants;
-import frc.robot.util.DartCamera;
 import frc.robot.util.Logger;
 
 public class SwerveIO extends SwerveDrivetrain<TalonFX, TalonFX, CANcoder> {
 
-  private final DartCamera camera;
-  private double lastProcessedTimestamp = -1;
   private final SwerveModule<TalonFX, TalonFX, CANcoder>[] modules;
 
   public static class SwerveIOInputs {
@@ -38,7 +35,6 @@ public class SwerveIO extends SwerveDrivetrain<TalonFX, TalonFX, CANcoder> {
         SwerveConstants.moduleConstants.get(1),
         SwerveConstants.moduleConstants.get(2),
         SwerveConstants.moduleConstants.get(3));
-    this.camera = new DartCamera(VisionConstants.camera.name);
     this.modules = getModules();
   }
 

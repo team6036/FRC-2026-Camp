@@ -8,6 +8,7 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import frc.robot.constants.SwerveConstants;
 import frc.robot.subsystems.shooter.ShooterIO;
 import frc.robot.subsystems.shooter.ShooterSubsystem;
 import frc.robot.subsystems.swerve.SwerveIO;
@@ -52,21 +53,43 @@ public class Robot extends TimedRobot {
 
   @Override
   public void teleopPeriodic() {
-    double vx = controller.getLeftY();
-    double vy = controller.getLeftX();
-    double omega = controller.getRightX();
-
-    swerve.driveFieldRelative(new ChassisSpeeds(vx, vy, omega));
+    double vx = controller.getLeftY() * SwerveConstants.maxLinearSpeed;
+    double vy = controller.getLeftX() * SwerveConstants.maxLinearSpeed;
+    double omega = controller.getRightX() * SwerveConstants.maxAngularSpeed;
 
     // ===== YOUR JOB: Make shooter shoot at correct velocity =====
+    // HINT: swerve.getDistanceFromHub()
+    // HINT: shooter.getVelocityForDistance()
+    // HINT: shooter.shoot(...)
     if (controller.getYButton()) {
-      //      double distance = swerve.getDistanceFromHub();
-      //      double velocity = shooter.getVelocityForDistance(distance);
-      //      shooter.shoot(velocity);
-    } else {
-      //      shooter.stop();
+//      double distance = swerve.getDistanceFromHub();
+//      double velocity = shooter.getVelocityForDistance(distance);
+//      shooter.shoot(velocity);
     }
+
+    // ===== YOUR JOB: Autonomous driving! ========================
+    // HINT: swerve.hasTarget()
+    // HINT: swerve.chaseTarget()
+    // HINT: swerve.aimAtHub(vx, vy)
+    // HINT: swerve.isAimedAtHub()
+    // HINT: the three methods we used in the exercise above!
+    else if (controller.getAButton()) {
+//      if (swerve.hasTarget()) {
+//        swerve.chaseTarget();
+//      } else {
+//        swerve.aimAtHub(vx, vy);
+//
+//        if (swerve.isAimedAtHub()) {
+//          shooter.shoot(shooter.getVelocityForDistance(swerve.getDistanceFromHub()));
+//        }
+//      }
+    }
+
     // ============================================================
+    else {
+      shooter.stop();
+      swerve.drive(new ChassisSpeeds(vx, vy, omega));
+    }
   }
 
   @Override
