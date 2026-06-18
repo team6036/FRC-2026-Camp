@@ -9,10 +9,19 @@ import edu.wpi.first.math.kinematics.SwerveModuleState;
 import frc.robot.constants.SwerveConstants;
 import frc.robot.constants.VisionConstants;
 import frc.robot.util.Logger;
+import java.util.Optional;
+import org.photonvision.EstimatedRobotPose;
+import org.photonvision.PhotonCamera;
+import org.photonvision.PhotonPoseEstimator;
+import org.photonvision.targeting.PhotonPipelineResult;
 
 public class SwerveIO extends SwerveDrivetrain<TalonFX, TalonFX, CANcoder> {
 
   private final SwerveModule<TalonFX, TalonFX, CANcoder>[] modules;
+
+  private final PhotonCamera camera;
+  private final PhotonPoseEstimator poseEstimator;
+  private double lastProcessedTimestamp = -1;
 
   public static class SwerveIOInputs {
     public Pose2d pose = new Pose2d();
@@ -36,23 +45,31 @@ public class SwerveIO extends SwerveDrivetrain<TalonFX, TalonFX, CANcoder> {
         SwerveConstants.moduleConstants.get(2),
         SwerveConstants.moduleConstants.get(3));
     this.modules = getModules();
+
+    this.camera = new PhotonCamera(VisionConstants.camera.name);
+    this.poseEstimator =
+        new PhotonPoseEstimator(VisionConstants.fieldLayout, VisionConstants.camera.robotToCamera);
   }
 
   public void updateInputs(SwerveIOInputs inputs) {
-    //      List<DartCamera.AprilTagResult> aprilTagResults = camera.readAprilTagResults();
-    //      DartCamera.PnPResult latestPnPResult = null;
-    //      double latestTimestamp = -1;
-    //      for (DartCamera.AprilTagResult result : aprilTagResults) {
-    //        if (result.numPnpResults > 0 && result.captureTimestamp > latestTimestamp) {
-    //          latestTimestamp = result.captureTimestamp;
-    //          latestPnPResult = result.pnpResults[0];
-    //        }
-    //      }
-    //      if (latestPnPResult != null && latestTimestamp > lastProcessedTimestamp) {
-    //        this.addVisionMeasurement(latestPnPResult.pose.toPose2d(), latestTimestamp);
-    //        lastProcessedTimestamp = latestTimestamp;
-    //      }
-    //
+    for (PhotonPipelineResult result : camera.getAllUnreadResults()) {
+      if (result.getTimestampSeconds() <= lastProcessedTimestamp) {
+        continue;
+      }
+
+      Optional<EstimatedRobotPose> estimate;
+      if (result.getMultiTagResult().isPresent()) {
+        estimate = poseEstimator.estimateCoprocMultiTagPose(result);
+      } else {
+        estimate = poseEstimator.estimateLowestAmbiguityPose(result);
+      }
+
+      if (estimate.isPresent()) {
+        EstimatedRobotPose est = estimate.get();
+        this.addVisionMeasurement(est.estimatedPose.toPose2d(), est.timestampSeconds);
+        lastProcessedTimestamp = est.timestampSeconds;
+      }
+    }
     var state = getStateCopy();
 
     inputs.pose = state.Pose;
