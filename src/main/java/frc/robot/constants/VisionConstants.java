@@ -29,8 +29,10 @@ public class VisionConstants {
     }
   }
 
-  public static final CameraConfiguration camera =
-      new CameraConfiguration("Camera", new Transform3d());
+  public static final CameraConfiguration intakeCamera =
+      new CameraConfiguration("IntakeCamera", new Transform3d());
+  public static final CameraConfiguration shooterCamera =
+      new CameraConfiguration("ShooterCamera", new Transform3d());
 
   public static final double frameWidth = 1200d;
 }

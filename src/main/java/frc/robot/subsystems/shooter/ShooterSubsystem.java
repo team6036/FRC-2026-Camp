@@ -43,18 +43,18 @@ public class ShooterSubsystem extends SubsystemBase {
   public void periodic() {
     io.updateInputs(inputs);
 
-    Logger.log("Subsystems/Shooter/BottomLeftPresent", inputs.bottomLeftPresent);
-    Logger.log("Subsystems/Shooter/BottomRightPresent", inputs.bottomRightPresent);
-
+    Logger.log("Subsystems/Shooter/WantedVelocityRPS", wantedVelocityRPS);
     Logger.log("Subsystems/Shooter/BottomLeftVelocity", inputs.bottomLeftVelocityRPS);
     Logger.log("Subsystems/Shooter/BottomRightVelocity", inputs.bottomRightVelocityRPS);
     Logger.log("Subsystems/Shooter/TopLeftVelocity", inputs.topLeftVelocityRPS);
     Logger.log("Subsystems/Shooter/TopRightVelocity", inputs.topRightVelocityRPS);
-    Logger.log("Subsystems/Shooter/WantedVelocityRPS", wantedVelocityRPS);
+
+    Logger.log("Subsystems/Shooter/BottomLeftPresent", inputs.bottomLeftPresent);
+    Logger.log("Subsystems/Shooter/BottomRightPresent", inputs.bottomRightPresent);
 
     if (isShooting) {
       io.setTopVelocity(wantedVelocityRPS);
-      if (inputs.topLeftVelocityRPS >= wantedVelocityRPS * 0.9) {
+      if (inputs.topLeftVelocityRPS >= wantedVelocityRPS * 0.7) {
         io.setBottomVelocity(wantedVelocityRPS);
       }
     } else {

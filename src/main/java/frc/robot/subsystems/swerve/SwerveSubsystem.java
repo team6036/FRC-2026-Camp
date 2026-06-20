@@ -111,7 +111,7 @@ public class SwerveSubsystem extends SubsystemBase {
             SwerveConstants.maxAngularSpeed);
     io.setControl(
         chaseRequest
-            .withVelocityX(SwerveConstants.chaseKp)
+            .withVelocityX(SwerveConstants.maxAngularSpeed / 2)
             .withVelocityY(0.0)
             .withRotationalRate(omega));
   }

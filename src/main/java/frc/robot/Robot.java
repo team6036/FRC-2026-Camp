@@ -9,6 +9,8 @@ import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.constants.SwerveConstants;
+import frc.robot.subsystems.intake.IntakeIO;
+import frc.robot.subsystems.intake.IntakeSubsystem;
 import frc.robot.subsystems.shooter.ShooterIO;
 import frc.robot.subsystems.shooter.ShooterSubsystem;
 import frc.robot.subsystems.swerve.SwerveIO;
@@ -19,14 +21,14 @@ public class Robot extends TimedRobot {
 
   private final SwerveSubsystem swerve;
   private final ShooterSubsystem shooter;
-  //  private final VisionFuelSubsystem visionFuel;
+  private final IntakeSubsystem intake;
   private final XboxController controller = new XboxController(0);
 
   public Robot() {
     super(0.02);
     swerve = new SwerveSubsystem(new SwerveIO());
     shooter = new ShooterSubsystem(new ShooterIO());
-    //    visionFuel = new VisionFuelSubsystem(new VisionFuelIO(swerve.getPoseBuffer()));
+    intake = new IntakeSubsystem(new IntakeIO());
 
     // ===== YOUR JOB: Tune the shooter ===========================
     shooter.configurePID(0, 0, 0, 0, 0, 0, 0);
@@ -76,7 +78,9 @@ public class Robot extends TimedRobot {
     else if (controller.getAButton()) {
       //      if (swerve.hasTarget()) {
       //        swerve.chaseTarget();
+      //        intake.run();
       //      } else {
+      //        intake.stop();
       //        swerve.aimAtHub(vx, vy);
       //
       //        if (swerve.isAimedAtHub()) {
@@ -88,6 +92,7 @@ public class Robot extends TimedRobot {
     // ============================================================
     else {
       shooter.stop();
+      intake.stop();
       swerve.drive(new ChassisSpeeds(vx, vy, omega));
     }
   }

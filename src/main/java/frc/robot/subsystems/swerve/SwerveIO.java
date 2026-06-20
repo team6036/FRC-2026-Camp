@@ -46,9 +46,10 @@ public class SwerveIO extends SwerveDrivetrain<TalonFX, TalonFX, CANcoder> {
         SwerveConstants.moduleConstants.get(3));
     this.modules = getModules();
 
-    this.camera = new PhotonCamera(VisionConstants.camera.name);
+    this.camera = new PhotonCamera(VisionConstants.shooterCamera.name);
     this.poseEstimator =
-        new PhotonPoseEstimator(VisionConstants.fieldLayout, VisionConstants.camera.robotToCamera);
+        new PhotonPoseEstimator(
+            VisionConstants.fieldLayout, VisionConstants.shooterCamera.robotToCamera);
   }
 
   public void updateInputs(SwerveIOInputs inputs) {
