@@ -24,6 +24,8 @@ public class Robot extends TimedRobot {
   private final IntakeSubsystem intake;
   private final XboxController controller = new XboxController(0);
 
+  // ===== PULL UP SHOOTING NetworkTables subscribers/de-bouncer HERE =====
+
   public Robot() {
     super(0.02);
     swerve = new SwerveSubsystem(new SwerveIO());
