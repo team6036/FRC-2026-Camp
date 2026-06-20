@@ -80,7 +80,7 @@ public class RobotConstants {
         case CAMP_A -> StartPosition.CENTER;
         case CAMP_B -> StartPosition.CENTER;
         case CAMP_C -> StartPosition.CENTER;
-        case CAMP_D -> StartPosition.CENTER;
+        case CAMP_D -> StartPosition.RIGHT;
         case UNKNOWN -> StartPosition.CENTER;
       };
 

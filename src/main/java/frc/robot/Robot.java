@@ -8,6 +8,7 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import frc.robot.constants.RobotConstants;
 import frc.robot.constants.SwerveConstants;
 import frc.robot.subsystems.intake.IntakeIO;
 import frc.robot.subsystems.intake.IntakeSubsystem;
@@ -33,15 +34,16 @@ public class Robot extends TimedRobot {
     intake = new IntakeSubsystem(new IntakeIO());
 
     // ===== YOUR JOB: Tune the shooter ===========================
-    shooter.configurePID(0, 0, 0, 0, 0, 0, 0);
-
-    shooter.addShot(0.0, 20.0);
+    //    shooter.configurePID(0, 0, 0, 0, 0, 0, 0);
+    //    shooter.addShot(0.0, 20.0);
     // ============================================================
   }
 
   @Override
   public void robotInit() {
     Logger.init();
+
+    swerve.resetPose(RobotConstants.startPosition.pose);
   }
 
   @Override
@@ -66,9 +68,10 @@ public class Robot extends TimedRobot {
     // HINT: shooter.getVelocityForDistance()
     // HINT: shooter.shoot(...)
     if (controller.getYButton()) {
-      //      double distance = swerve.getDistanceFromHub();
-      //      double velocity = shooter.getVelocityForDistance(distance);
-      //      shooter.shoot(velocity);
+      double distance = swerve.getDistanceFromHub();
+      double velocity = shooter.getVelocityForDistance(distance);
+      swerve.aimAtHub(vx, vy);
+      shooter.shoot(velocity);
     }
 
     // ===== YOUR JOB: Autonomous driving! ========================
