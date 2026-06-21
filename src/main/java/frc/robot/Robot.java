@@ -71,7 +71,9 @@ public class Robot extends TimedRobot {
       double distance = swerve.getDistanceFromHub();
       double velocity = shooter.getVelocityForDistance(distance);
       swerve.aimAtHub(vx, vy);
-      shooter.shoot(velocity);
+      if (swerve.isAimedAtHub()) {
+        shooter.shoot(velocity);
+      }
     }
 
     // ===== YOUR JOB: Autonomous driving! ========================

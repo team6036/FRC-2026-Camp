@@ -97,7 +97,7 @@ public class SwerveConstants {
   public static final boolean driveMotorInverted =
       switch (RobotConstants.swerveModuleType) {
         case MK4n_L2 -> true;
-        case MK5n_L2 -> false;
+        case MK5n_L2 -> true;
         case MK4i_L2 -> true;
         default -> true;
       }; // be most weary of drive motor inverted lowkey as results are inconclusive online
@@ -211,5 +211,5 @@ public class SwerveConstants {
   public static final double joystickDeadband = 0.05;
 
   public static final double chaseKp = 4.0;
-  public static final double aimKp = 0.01;
+  public static final double aimKp = 10.0;
 }

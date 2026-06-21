@@ -129,7 +129,8 @@ public class SwerveSubsystem extends SubsystemBase {
   public void aimAtHub(double vx, double vy) {
     Translation2d hubPosition = FieldConstants.Hub.redHubPosition.toTranslation2d();
     Translation2d toHub = hubPosition.minus(inputs.pose.getTranslation());
-    Rotation2d targetAngle = new Rotation2d(toHub.getX(), toHub.getY());
+    Rotation2d targetAngle = new Rotation2d(toHub.getX(), toHub.getY()).plus(Rotation2d.kPi);
+
     double currentAngle = inputs.pose.getRotation().getRadians();
     double omega =
         MathUtil.clamp(
