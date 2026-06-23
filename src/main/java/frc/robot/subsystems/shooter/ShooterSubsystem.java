@@ -1,5 +1,6 @@
 package frc.robot.subsystems.shooter;
 
+import com.ctre.phoenix6.configs.TalonFXConfigurator;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.constants.ShooterConstants;
 import frc.robot.subsystems.shooter.ShooterIO.ShooterIOInputs;
@@ -39,22 +40,37 @@ public class ShooterSubsystem extends SubsystemBase {
     this.isShooting = false;
   }
 
+  public void updateNT() {
+    boolean update = ShooterConstants.shooterGains.shouldUpdate();
+
+    if (!update) return;
+    TalonFXConfigurator tlConfig = io.topLeftMotor.getConfigurator();
+    TalonFXConfigurator trConfig = io.topRightMotor.getConfigurator();
+    TalonFXConfigurator blConfig = io.bottomLeftMotor.getConfigurator();
+    TalonFXConfigurator brConfig = io.bottomRightMotor.getConfigurator();
+
+    ShooterConstants.shooterGains.update(tlConfig);
+    ShooterConstants.shooterGains.update(trConfig);
+    ShooterConstants.shooterGains.update(blConfig);
+    ShooterConstants.shooterGains.update(brConfig);
+  }
+
   @Override
   public void periodic() {
     io.updateInputs(inputs);
 
     Logger.log("Subsystems/Shooter/WantedVelocityRPS", wantedVelocityRPS);
-    Logger.log("Subsystems/Shooter/BottomLeftVelocity", inputs.bottomLeftVelocityRPS);
-    Logger.log("Subsystems/Shooter/BottomRightVelocity", inputs.bottomRightVelocityRPS);
-    Logger.log("Subsystems/Shooter/TopLeftVelocity", inputs.topLeftVelocityRPS);
-    Logger.log("Subsystems/Shooter/TopRightVelocity", inputs.topRightVelocityRPS);
+    Logger.log("Subsystems/Shooter/BottomLeftVelocity", Math.abs(inputs.bottomLeftVelocityRPS));
+    Logger.log("Subsystems/Shooter/BottomRightVelocity", Math.abs(inputs.bottomRightVelocityRPS));
+    Logger.log("Subsystems/Shooter/TopLeftVelocity", Math.abs(inputs.topLeftVelocityRPS));
+    Logger.log("Subsystems/Shooter/TopRightVelocity", Math.abs(inputs.topRightVelocityRPS));
 
     Logger.log("Subsystems/Shooter/BottomLeftPresent", inputs.bottomLeftPresent);
     Logger.log("Subsystems/Shooter/BottomRightPresent", inputs.bottomRightPresent);
 
     if (isShooting) {
-      io.setTopVelocity(wantedVelocityRPS);
-      if (inputs.topLeftVelocityRPS >= wantedVelocityRPS * 0.7) {
+      io.setTopVelocity(-wantedVelocityRPS);
+      if (Math.abs(inputs.topLeftVelocityRPS) >= wantedVelocityRPS * 0.9) {
         io.setBottomVelocity(wantedVelocityRPS);
       }
     } else {

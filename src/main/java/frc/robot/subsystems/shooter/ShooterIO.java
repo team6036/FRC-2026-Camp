@@ -13,10 +13,10 @@ import frc.robot.constants.ShooterConstants;
 
 public class ShooterIO {
 
-  private final TalonFX topLeftMotor;
-  private final TalonFX topRightMotor;
-  private final TalonFX bottomLeftMotor;
-  private final TalonFX bottomRightMotor;
+  public final TalonFX topLeftMotor;
+  public final TalonFX topRightMotor;
+  public final TalonFX bottomLeftMotor;
+  public final TalonFX bottomRightMotor;
 
   private final boolean bottomLeftPresent;
   private final boolean bottomRightPresent;

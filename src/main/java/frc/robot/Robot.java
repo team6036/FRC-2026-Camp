@@ -37,6 +37,11 @@ public class Robot extends TimedRobot {
     //    shooter.configurePID(0, 0, 0, 0, 0, 0, 0);
     //    shooter.addShot(0.0, 20.0);
     // ============================================================
+    shooter.configurePID(0.5, 0, 0, 0.275, 0.12, 0, 0);
+    shooter.addShot(3.7, 50);
+    shooter.addShot(2.2, 32);
+    shooter.addShot(3, 38);
+    shooter.addShot(4, 54);
   }
 
   @Override
@@ -67,8 +72,9 @@ public class Robot extends TimedRobot {
     // HINT: swerve.getDistanceFromHub()
     // HINT: shooter.getVelocityForDistance()
     // HINT: shooter.shoot(...)
-    if (controller.getYButton()) {
-
+    if (controller.getYButton() || controller.getRawButton(4)) {
+      double distance = swerve.getDistanceFromHub();
+      shooter.shoot(shooter.getVelocityForDistance(distance));
     }
 
     // ===== YOUR JOB: Autonomous driving! ========================

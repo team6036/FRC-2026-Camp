@@ -66,7 +66,7 @@ public class RobotConstants {
   public enum StartPosition {
     LEFT(new Pose2d(new Translation2d(redHubX + 2, redHubY - 4), Rotation2d.kCCW_90deg)),
     RIGHT(new Pose2d(new Translation2d(redHubX + 2, redHubY + 4), Rotation2d.kCW_90deg)),
-    CENTER(new Pose2d(new Translation2d(redHubX + 5, redHubY), Rotation2d.k180deg));
+    CENTER(new Pose2d(new Translation2d(redHubX + 4.7, redHubY), Rotation2d.k180deg));
 
     public Pose2d pose;
 
