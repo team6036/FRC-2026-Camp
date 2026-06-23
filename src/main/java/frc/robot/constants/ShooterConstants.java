@@ -21,9 +21,18 @@ public class ShooterConstants {
   public static final double kV = 0.125;
   public static final double kA = 0;
 
-  public static final NTFullGains gains = new NTFullGains("Shooter", kP, kI, kD, kS, kV, kG, kA);
+  public static final NTFullGains shooterGains =
+      new NTFullGains("Shooter", kP, kI, kD, kS, kV, kA, kG);
 
   /* Shotmap */
   public static final InterpolatingDoubleTreeMap shooterVelocityMap =
       new InterpolatingDoubleTreeMap();
+
+  static {
+    shooterVelocityMap.put(1.0, 25.0);
+    shooterVelocityMap.put(2.5, 32.0);
+    shooterVelocityMap.put(3.5, 42.0);
+    shooterVelocityMap.put(5.0, 52.0);
+    shooterVelocityMap.put(8.0, 80.0);
+  }
 }

@@ -55,13 +55,14 @@ public class Robot extends TimedRobot {
     intake = new IntakeSubsystem(new IntakeIO());
 
     // ===== YOUR JOB: Tune the shooter ===========================
-    shooter.configurePID(0.5, 0, 0, 0.3, 0.12, 0, 0);
-    shooter.addShot(1.4, 37);
-    shooter.addShot(1.9, 41);
-    shooter.addShot(2.3, 44);
-    shooter.addShot(2.7, 47);
-    shooter.addShot(3.0, 50);
+    //    shooter.configurePID(0, 0, 0, 0, 0, 0, 0);
+    //    shooter.addShot(0.0, 20.0);
     // ============================================================
+    shooter.configurePID(0.5, 0, 0, 0.275, 0.12, 0, 0);
+    shooter.addShot(3.7, 50);
+    shooter.addShot(2.2, 32);
+    shooter.addShot(3, 38);
+    shooter.addShot(4, 54);
 
     NetworkTableInstance inst = NetworkTableInstance.getDefault();
     NetworkTable table = inst.getTable("Vision");
@@ -113,7 +114,7 @@ public class Robot extends TimedRobot {
     // HINT: shooter.getVelocityForDistance()
     // HINT: shooter.shoot(...)
     boolean shouldShoot = shootDebouncer.calculate(shootSubscriber.get());
-    if (controller.getYButton() || shouldShoot) {
+    if (controller.getYButton() || controller.getRawButton(4) || shouldShoot) {
       swerve.aimAtHub(vx, vy, omegaTrim);
       if (swerve.isAimedAtHub()) {
         double distance = swerve.getDistanceFromHub();

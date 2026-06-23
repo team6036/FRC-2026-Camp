@@ -44,6 +44,21 @@ public class ShooterSubsystem extends SubsystemBase {
     this.isShooting = false;
   }
 
+  public void updateNT() {
+    boolean update = ShooterConstants.shooterGains.shouldUpdate();
+
+    if (!update) return;
+    TalonFXConfigurator tlConfig = io.topLeftMotor.getConfigurator();
+    TalonFXConfigurator trConfig = io.topRightMotor.getConfigurator();
+    TalonFXConfigurator blConfig = io.bottomLeftMotor.getConfigurator();
+    TalonFXConfigurator brConfig = io.bottomRightMotor.getConfigurator();
+
+    ShooterConstants.shooterGains.update(tlConfig);
+    ShooterConstants.shooterGains.update(trConfig);
+    ShooterConstants.shooterGains.update(blConfig);
+    ShooterConstants.shooterGains.update(brConfig);
+  }
+
   private void updateNT() {
     boolean update = ShooterConstants.gains.shouldUpdate();
     if (!update) return;
@@ -60,10 +75,10 @@ public class ShooterSubsystem extends SubsystemBase {
         isShooting && Math.abs(inputs.topLeftVelocityRPS) >= wantedVelocityRPS * 0.9;
 
     Logger.log("Subsystems/Shooter/WantedVelocityRPS", wantedVelocityRPS);
-    Logger.log("Subsystems/Shooter/BottomLeftVelocity", inputs.bottomLeftVelocityRPS);
-    Logger.log("Subsystems/Shooter/BottomRightVelocity", inputs.bottomRightVelocityRPS);
-    Logger.log("Subsystems/Shooter/TopLeftVelocity", inputs.topLeftVelocityRPS);
-    Logger.log("Subsystems/Shooter/TopRightVelocity", inputs.topRightVelocityRPS);
+    Logger.log("Subsystems/Shooter/BottomLeftVelocity", Math.abs(inputs.bottomLeftVelocityRPS));
+    Logger.log("Subsystems/Shooter/BottomRightVelocity", Math.abs(inputs.bottomRightVelocityRPS));
+    Logger.log("Subsystems/Shooter/TopLeftVelocity", Math.abs(inputs.topLeftVelocityRPS));
+    Logger.log("Subsystems/Shooter/TopRightVelocity", Math.abs(inputs.topRightVelocityRPS));
 
     Logger.log("Subsystems/Shooter/BottomLeftPresent", inputs.bottomLeftPresent);
     Logger.log("Subsystems/Shooter/BottomRightPresent", inputs.bottomRightPresent);
@@ -71,7 +86,7 @@ public class ShooterSubsystem extends SubsystemBase {
     Logger.log("Subsystems/Shooter/TopAtSpeed", topAtSpeed);
 
     if (isShooting) {
-      io.setTopVelocity(wantedVelocityRPS);
+      io.setTopVelocity(-wantedVelocityRPS);
       if (topAtSpeed) io.setBottomVelocity(wantedVelocityRPS);
     } else {
       io.stop();
