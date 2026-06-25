@@ -9,6 +9,7 @@ import edu.wpi.first.math.kinematics.SwerveModuleState;
 import frc.robot.constants.SwerveConstants;
 import frc.robot.constants.VisionConstants;
 import frc.robot.util.Logger;
+import java.util.List;
 import java.util.Optional;
 import org.photonvision.EstimatedRobotPose;
 import org.photonvision.PhotonCamera;
@@ -53,20 +54,27 @@ public class SwerveIO extends SwerveDrivetrain<TalonFX, TalonFX, CANcoder> {
   }
 
   public void updateInputs(SwerveIOInputs inputs) {
-    for (PhotonPipelineResult result : camera.getAllUnreadResults()) {
+    Logger.log("Subsystems/Swerve/Vision/CameraConfigured", camera.isConnected());
+
+    List<PhotonPipelineResult> results = camera.getAllUnreadResults();
+    Logger.log("Subsystems/Swerve/Vision/NumResults", results.size());
+    for (PhotonPipelineResult result : results) {
       if (result.getTimestampSeconds() <= lastProcessedTimestamp) {
         continue;
       }
 
+      Logger.log("Subsystems/Swerve/Vision/HasTargets", result.hasTargets());
       Optional<EstimatedRobotPose> estimate;
       if (result.getMultiTagResult().isPresent()) {
         estimate = poseEstimator.estimateCoprocMultiTagPose(result);
       } else {
         estimate = poseEstimator.estimateLowestAmbiguityPose(result);
       }
+      Logger.log("Subsystems/Swerve/Vision/HasEstimate", estimate.isPresent());
 
       if (estimate.isPresent()) {
         EstimatedRobotPose est = estimate.get();
+        Logger.log("Subsystems/Swerve/Vision/Estimate", est.estimatedPose.toPose2d());
         this.addVisionMeasurement(est.estimatedPose.toPose2d(), est.timestampSeconds);
         lastProcessedTimestamp = est.timestampSeconds;
       }

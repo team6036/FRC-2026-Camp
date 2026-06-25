@@ -8,7 +8,6 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
-import frc.robot.constants.RobotConstants;
 import frc.robot.constants.SwerveConstants;
 import frc.robot.subsystems.intake.IntakeIO;
 import frc.robot.subsystems.intake.IntakeSubsystem;
@@ -43,7 +42,7 @@ public class Robot extends TimedRobot {
   public void robotInit() {
     Logger.init();
 
-    swerve.resetPose(RobotConstants.startPosition.pose);
+    //    swerve.resetPose(RobotConstants.startPosition.pose);
   }
 
   @Override

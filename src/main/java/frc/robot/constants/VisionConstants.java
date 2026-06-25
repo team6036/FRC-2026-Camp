@@ -4,7 +4,9 @@ import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.VecBuilder;
+import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
+import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.util.Units;
@@ -32,7 +34,17 @@ public class VisionConstants {
   public static final CameraConfiguration intakeCamera =
       new CameraConfiguration("IntakeCamera", new Transform3d());
   public static final CameraConfiguration shooterCamera =
-      new CameraConfiguration("ShooterCamera", new Transform3d());
+      new CameraConfiguration(
+          "ShooterCamera",
+          new Transform3d(
+              new Translation3d(
+                  Units.inchesToMeters(13.217),
+                  Units.inchesToMeters(0.),
+                  Units.inchesToMeters(8.259)),
+              new Rotation3d(
+                  Units.degreesToRadians(0.),
+                  Units.degreesToRadians(-10.),
+                  Units.degreesToRadians(0.))));
 
   public static final double frameWidth = 1200d;
 }
