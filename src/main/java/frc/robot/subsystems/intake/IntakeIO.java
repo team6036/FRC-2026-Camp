@@ -11,16 +11,25 @@ public class IntakeIO {
   private final TalonFX leftMotor;
   private final TalonFX rightMotor;
 
+  private final boolean intakeLeftPresent;
+  private final boolean intakeRightPresent;
+
   private final CoastOut coastRequest;
   private final VoltageOut voltageRequest;
 
   public static class IntakeIOInputs {
     public double voltage;
+
+    public boolean intakeLeftPresent;
+    public boolean intakeRightPresent;
   }
 
   public IntakeIO() {
     leftMotor = new TalonFX(IntakeConstants.leftMotor, IntakeConstants.bus);
     rightMotor = new TalonFX(IntakeConstants.rightMotor, IntakeConstants.bus);
+
+    intakeLeftPresent = leftMotor.isConnected();
+    intakeRightPresent = rightMotor.isConnected();
 
     TalonFXConfiguration config = new TalonFXConfiguration();
     config.Feedback.SensorToMechanismRatio = IntakeConstants.gearRatio;
@@ -45,13 +54,25 @@ public class IntakeIO {
 
   public void updateInputs(IntakeIOInputs inputs) {
     inputs.voltage = leftMotor.getMotorVoltage().getValueAsDouble();
+    if (inputs.intakeRightPresent && !intakeLeftPresent) {
+      inputs.voltage = rightMotor.getMotorVoltage().getValueAsDouble();
+    }
+
+    inputs.intakeLeftPresent = intakeLeftPresent;
+    inputs.intakeRightPresent = intakeRightPresent;
   }
 
   public void setVoltage(double voltage) {
     leftMotor.setControl(voltageRequest.withOutput(voltage));
+    if (intakeRightPresent && !intakeLeftPresent) {
+      rightMotor.setControl(voltageRequest.withOutput(voltage));
+    }
   }
 
   public void setCoast() {
     leftMotor.setControl(coastRequest);
+    if (intakeRightPresent && !intakeLeftPresent) {
+      rightMotor.setControl(coastRequest);
+    }
   }
 }

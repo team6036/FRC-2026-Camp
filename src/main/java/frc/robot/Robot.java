@@ -72,9 +72,12 @@ public class Robot extends TimedRobot {
     // HINT: shooter.getVelocityForDistance()
     // HINT: shooter.shoot(...)
     if (controller.getYButton()) {
-      double distance = swerve.getDistanceFromHub();
-      double velocity = shooter.getVelocityForDistance(distance);
-      shooter.shoot(velocity);
+      swerve.aimAtHub(vx, vy);
+      if (swerve.isAimedAtHub()) {
+        double distance = swerve.getDistanceFromHub();
+        double velocity = shooter.getVelocityForDistance(distance);
+        shooter.shoot(velocity);
+      }
     } else if (controller.getBButton()) {
       intake.run();
     }
