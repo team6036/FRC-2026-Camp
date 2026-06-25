@@ -54,7 +54,7 @@ public class ShooterSubsystem extends SubsystemBase {
 
     if (isShooting) {
       io.setTopVelocity(wantedVelocityRPS);
-      if (inputs.topLeftVelocityRPS >= wantedVelocityRPS * 0.7) {
+      if (Math.abs(inputs.topLeftVelocityRPS) >= wantedVelocityRPS * 0.7) {
         io.setBottomVelocity(wantedVelocityRPS);
       }
     } else {

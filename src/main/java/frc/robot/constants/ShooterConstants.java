@@ -12,12 +12,12 @@ public class ShooterConstants {
   public static final int topRightMotorId = 33;
 
   /* Control */
-  public static final double kP = 0.5;
+  public static final double kP = .5;
   public static final double kI = 0;
   public static final double kD = 0;
   public static final double kS = 0.3;
   public static final double kG = 0;
-  public static final double kV = 0.12;
+  public static final double kV = 0.125;
   public static final double kA = 0;
 
   /* Shotmap */

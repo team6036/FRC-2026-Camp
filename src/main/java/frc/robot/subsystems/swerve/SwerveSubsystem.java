@@ -51,6 +51,7 @@ public class SwerveSubsystem extends SubsystemBase {
     this.io = io;
 
     hubAimController.enableContinuousInput(-Math.PI, Math.PI);
+    fuelAimController.setTolerance(VisionConstants.fuelAimTolerancePixels);
 
     NetworkTable visionTable = NetworkTableInstance.getDefault().getTable("Vision");
     hasTargetSub = visionTable.getBooleanTopic("hasTarget").subscribe(false);
@@ -111,7 +112,7 @@ public class SwerveSubsystem extends SubsystemBase {
             SwerveConstants.maxAngularSpeed);
     io.setControl(
         chaseRequest
-            .withVelocityX(SwerveConstants.maxAngularSpeed / 2)
+            .withVelocityX(SwerveConstants.maxLinearSpeed / 2)
             .withVelocityY(0.0)
             .withRotationalRate(omega));
   }
@@ -184,6 +185,10 @@ public class SwerveSubsystem extends SubsystemBase {
 
   public void stop() {
     drive(new ChassisSpeeds());
+  }
+
+  public boolean resetPoseFromVision() {
+    return io.resetPoseFromVision();
   }
 
   public void resetPose(Pose2d pose) {

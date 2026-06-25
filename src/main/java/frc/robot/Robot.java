@@ -33,8 +33,12 @@ public class Robot extends TimedRobot {
     intake = new IntakeSubsystem(new IntakeIO());
 
     // ===== YOUR JOB: Tune the shooter ===========================
-    //    shooter.configurePID(0, 0, 0, 0, 0, 0, 0);
-    //    shooter.addShot(0.0, 20.0);
+    shooter.configurePID(0.5, 0, 0, 0.3, 0.12, 0, 0);
+    shooter.addShot(1.4, 37);
+    shooter.addShot(1.9, 41);
+    shooter.addShot(2.3, 44);
+    shooter.addShot(2.7, 47);
+    shooter.addShot(3.0, 50);
     // ============================================================
   }
 
@@ -42,7 +46,8 @@ public class Robot extends TimedRobot {
   public void robotInit() {
     Logger.init();
 
-    //    swerve.resetPose(RobotConstants.startPosition.pose);
+    boolean gotVisionPose = swerve.resetPoseFromVision();
+    Logger.log("StartupVisionPoseSuccess", gotVisionPose);
   }
 
   @Override
@@ -67,7 +72,11 @@ public class Robot extends TimedRobot {
     // HINT: shooter.getVelocityForDistance()
     // HINT: shooter.shoot(...)
     if (controller.getYButton()) {
-
+      double distance = swerve.getDistanceFromHub();
+      double velocity = shooter.getVelocityForDistance(distance);
+      shooter.shoot(velocity);
+    } else if (controller.getBButton()) {
+      intake.run();
     }
 
     // ===== YOUR JOB: Autonomous driving! ========================

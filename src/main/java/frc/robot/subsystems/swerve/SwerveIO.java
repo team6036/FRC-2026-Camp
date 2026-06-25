@@ -53,6 +53,26 @@ public class SwerveIO extends SwerveDrivetrain<TalonFX, TalonFX, CANcoder> {
             VisionConstants.fieldLayout, VisionConstants.shooterCamera.robotToCamera);
   }
 
+  public boolean resetPoseFromVision() {
+    for (PhotonPipelineResult result : camera.getAllUnreadResults()) {
+      if (!result.hasTargets()) {
+        continue;
+      }
+
+      Optional<EstimatedRobotPose> estimate =
+          result.getMultiTagResult().isPresent()
+              ? poseEstimator.estimateCoprocMultiTagPose(result)
+              : poseEstimator.estimateLowestAmbiguityPose(result);
+
+      if (estimate.isPresent()) {
+        resetPose(estimate.get().estimatedPose.toPose2d());
+        lastProcessedTimestamp = estimate.get().timestampSeconds;
+        return true;
+      }
+    }
+    return false;
+  }
+
   public void updateInputs(SwerveIOInputs inputs) {
     Logger.log("Subsystems/Swerve/Vision/CameraConfigured", camera.isConnected());
 
