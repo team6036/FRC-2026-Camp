@@ -72,38 +72,24 @@ public class Robot extends TimedRobot {
     // HINT: shooter.getVelocityForDistance()
     // HINT: shooter.shoot(...)
     if (controller.getYButton()) {
-      swerve.aimAtHub(vx, vy);
-      if (swerve.isAimedAtHub()) {
-        double distance = swerve.getDistanceFromHub();
-        double velocity = shooter.getVelocityForDistance(distance);
-        shooter.shoot(velocity);
-      }
+      double distance = swerve.getDistanceFromHub();
+      double velocity = shooter.getVelocityForDistance(distance);
+      shooter.shoot(velocity);
     } else if (controller.getBButton()) {
       intake.run();
     }
 
     // ===== YOUR JOB: Autonomous driving! ========================
     // HINT: swerve.driveTowardTarget()
-    // HINT: swerve.chaseTarget()
+    // HINT: swerve.isNearBall()
     // HINT: swerve.aimAtHub(vx, vy)
     // HINT: swerve.isAimedAtHub()
+    // HINT: swerve.ballCollected()
+    // HINT: intake.run();
+    // HINT: intake.stop()
     // HINT: the three methods we used in the exercise above!
     else if (controller.getAButton()) {
-      if (!swerve.ballCollected()) {
-        swerve.driveTowardTarget();
 
-        if (swerve.isNearBall()) {
-          intake.run();
-        } else {
-          intake.stop();
-        }
-      } else {
-        swerve.aimAtHub(vx, vy);
-        Logger.log("WantToAimAtHub", true);
-        if (swerve.isAimedAtHub()) {
-          shooter.shoot(shooter.getVelocityForDistance(swerve.getDistanceFromHub()));
-        }
-      }
     }
 
     // ============================================================
