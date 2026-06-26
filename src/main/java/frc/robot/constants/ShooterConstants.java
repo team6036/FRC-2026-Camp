@@ -23,12 +23,4 @@ public class ShooterConstants {
   /* Shotmap */
   public static final InterpolatingDoubleTreeMap shooterVelocityMap =
       new InterpolatingDoubleTreeMap();
-
-  static {
-    shooterVelocityMap.put(1.0, 25.0);
-    shooterVelocityMap.put(2.5, 32.0);
-    shooterVelocityMap.put(3.5, 42.0);
-    shooterVelocityMap.put(5.0, 52.0);
-    shooterVelocityMap.put(8.0, 80.0);
-  }
 }

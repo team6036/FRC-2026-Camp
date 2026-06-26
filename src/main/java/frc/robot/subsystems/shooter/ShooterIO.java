@@ -105,13 +105,13 @@ public class ShooterIO {
   }
 
   public void setTopVelocity(double velocityRPS) {
-    topLeftMotor.setControl(velocityRequest.withVelocity(velocityRPS));
+    topLeftMotor.setControl(velocityRequest.withVelocity(-velocityRPS));
   }
 
   public void setBottomVelocity(double velocityRPS) {
-    bottomLeftMotor.setControl(velocityRequest.withVelocity(velocityRPS));
+    bottomLeftMotor.setControl(velocityRequest.withVelocity(-velocityRPS));
     if (!bottomLeftPresent && bottomRightPresent)
-      bottomRightMotor.setControl(velocityRequest.withVelocity(velocityRPS));
+      bottomRightMotor.setControl(velocityRequest.withVelocity(-velocityRPS));
   }
 
   public void stop() {

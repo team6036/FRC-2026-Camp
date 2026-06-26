@@ -115,7 +115,7 @@ public class SwerveSubsystem extends SubsystemBase {
 
     if (timerStarted) {
       driveForwardBlind();
-      if (intakeCommitTimer.hasElapsed(1.0)) {
+      if (intakeCommitTimer.hasElapsed(1.5)) {
         ballCollected = true;
       }
       return;
@@ -124,14 +124,13 @@ public class SwerveSubsystem extends SubsystemBase {
     if (shouldDeployIntake()) {
       intakeCommitTimer.restart();
       timerStarted = true;
-      driveForwardBlind();
       return;
     }
 
     chaseTarget();
   }
 
-  public boolean isGrabbingBall() {
+  public boolean isNearBall() {
     return timerStarted && !ballCollected;
   }
 

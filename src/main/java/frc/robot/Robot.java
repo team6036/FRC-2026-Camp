@@ -92,7 +92,7 @@ public class Robot extends TimedRobot {
       if (!swerve.ballCollected()) {
         swerve.driveTowardTarget();
 
-        if (swerve.isGrabbingBall()) {
+        if (swerve.isNearBall()) {
           intake.run();
         } else {
           intake.stop();
