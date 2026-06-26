@@ -46,7 +46,7 @@ public class VisionConstants {
                   Units.degreesToRadians(-10.),
                   Units.degreesToRadians(180.))));
 
-  public static final double frameWidth = 640d;
+  public static final double frameWidth = 1280d;
 
   public static final double fuelAimTolerancePixels = 20d;
 }

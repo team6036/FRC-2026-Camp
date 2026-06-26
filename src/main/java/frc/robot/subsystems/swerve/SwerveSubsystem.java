@@ -13,6 +13,7 @@ import edu.wpi.first.networktables.BooleanSubscriber;
 import edu.wpi.first.networktables.DoubleSubscriber;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.constants.FieldConstants;
 import frc.robot.constants.RobotConstants;
@@ -29,8 +30,13 @@ public class SwerveSubsystem extends SubsystemBase {
   private final PIDController hubAimController = new PIDController(SwerveConstants.aimKp, 0, 0);
   private final PIDController fuelAimController = new PIDController(SwerveConstants.chaseKp, 0, 0);
 
+  private final Timer intakeCommitTimer = new Timer();
+  private boolean timerStarted = false;
+  private boolean ballCollected = false;
+
   private final BooleanSubscriber hasTargetSub;
   private final DoubleSubscriber targetXSub;
+  private final DoubleSubscriber targetYSub;
 
   private final SwerveRequest.FieldCentric driveRequest =
       new SwerveRequest.FieldCentric()
@@ -56,6 +62,7 @@ public class SwerveSubsystem extends SubsystemBase {
     NetworkTable visionTable = NetworkTableInstance.getDefault().getTable("Vision");
     hasTargetSub = visionTable.getBooleanTopic("hasTarget").subscribe(false);
     targetXSub = visionTable.getDoubleTopic("targetX").subscribe(0.0);
+    targetYSub = visionTable.getDoubleTopic("targetY").subscribe(0.0);
   }
 
   public Pose2d getPose() {
@@ -99,22 +106,69 @@ public class SwerveSubsystem extends SubsystemBase {
     io.setControl(driveRequest.withVelocityX(vx).withVelocityY(vy).withRotationalRate(omega));
   }
 
-  public boolean hasTarget() {
+  public boolean hasFuelTarget() {
     return hasTargetSub.getAsBoolean();
+  }
+
+  public void driveTowardTarget() {
+    if (ballCollected) return;
+
+    if (timerStarted) {
+      driveForwardBlind();
+      if (intakeCommitTimer.hasElapsed(1.0)) {
+        ballCollected = true;
+      }
+      return;
+    }
+
+    if (shouldDeployIntake()) {
+      intakeCommitTimer.restart();
+      timerStarted = true;
+      driveForwardBlind();
+      return;
+    }
+
+    chaseTarget();
+  }
+
+  public boolean isGrabbingBall() {
+    return timerStarted && !ballCollected;
+  }
+
+  private void driveForwardBlind() {
+    io.setControl(
+        chaseRequest
+            .withVelocityX(SwerveConstants.maxLinearSpeed / 3)
+            .withVelocityY(0)
+            .withRotationalRate(0));
+  }
+
+  public boolean ballCollected() {
+    return ballCollected;
+  }
+
+  public void resetCollectSequence() {
+    intakeCommitTimer.reset();
+    timerStarted = false;
+    ballCollected = false;
   }
 
   public void chaseTarget() {
     double error = targetXSub.getAsDouble() - (VisionConstants.frameWidth / 2d);
     double omega =
         MathUtil.clamp(
-            -fuelAimController.calculate(error, 0),
-            -SwerveConstants.maxAngularSpeed,
-            SwerveConstants.maxAngularSpeed);
+            -fuelAimController.calculate(-error, 0),
+            -SwerveConstants.maxAngularSpeed / 4,
+            SwerveConstants.maxAngularSpeed / 4);
     io.setControl(
         chaseRequest
-            .withVelocityX(SwerveConstants.maxLinearSpeed / 2)
+            .withVelocityX(SwerveConstants.maxLinearSpeed / 4)
             .withVelocityY(0.0)
             .withRotationalRate(omega));
+  }
+
+  public boolean shouldDeployIntake() {
+    return targetYSub.getAsDouble() > 700;
   }
 
   public boolean isAimedAtTarget() {
@@ -171,8 +225,15 @@ public class SwerveSubsystem extends SubsystemBase {
     Logger.log("Subsystems/Swerve/Speeds/Actual", inputs.speeds);
 
     Logger.log("Subsystems/Swerve/DistanceFromHub", getDistanceFromHub());
-    Logger.log("Subsystems/Swerve/Vision/HasTarget", hasTarget());
+    Logger.log("Subsystems/Swerve/Vision/HasFuelTarget", hasFuelTarget());
     Logger.log("Subsystems/Swerve/Vision/TargetX", targetXSub.getAsDouble());
+    Logger.log("Subsystems/Swerve/Vision/TargetY", targetYSub.getAsDouble());
+
+    Logger.log("Subsystems/Swerve/BallCollected", ballCollected);
+    Logger.log("Subsystems/Swerve/ShouldDeployIntake", shouldDeployIntake());
+    Logger.log("Subsystems/Swerve/TimerStarted", timerStarted);
+    Logger.log("Subsystems/Swerve/TimerValue", intakeCommitTimer.get());
+
     Logger.log("Subsystems/Swerve/Swerve/AimedAtFuel", isAimedAtTarget());
     Logger.log("Subsystems/Swerve/AimedAtHub", isAimedAtHub());
 

@@ -210,6 +210,6 @@ public class SwerveConstants {
   public static final double maxAngularSpeed = Math.PI;
   public static final double joystickDeadband = 0.05;
 
-  public static final double chaseKp = 4.0;
-  public static final double aimKp = 10.0;
+  public static final double chaseKp = 0.0025;
+  public static final double aimKp = 4.0;
 }
