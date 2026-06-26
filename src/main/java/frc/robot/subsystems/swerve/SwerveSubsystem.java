@@ -199,7 +199,7 @@ public class SwerveSubsystem extends SubsystemBase {
     return hubAimController.atSetpoint();
   }
 
-  public void updateNT() {
+  private void updateNT() {
     boolean updateDrive = SwerveConstants.driveGains.shouldUpdate();
     boolean updateSteer = SwerveConstants.steerGains.shouldUpdate();
     if (!updateDrive && !updateSteer) {

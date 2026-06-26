@@ -1,5 +1,6 @@
 package frc.robot.subsystems.shooter;
 
+import com.ctre.phoenix6.configs.TalonFXConfigurator;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.constants.ShooterConstants;
 import frc.robot.subsystems.shooter.ShooterIO.ShooterIOInputs;
@@ -43,6 +44,15 @@ public class ShooterSubsystem extends SubsystemBase {
     this.isShooting = false;
   }
 
+  private void updateNT() {
+    boolean update = ShooterConstants.gains.shouldUpdate();
+    if (!update) return;
+
+    for (TalonFXConfigurator configurator : io.getConfigurators()) {
+      ShooterConstants.gains.update(configurator);
+    }
+  }
+
   @Override
   public void periodic() {
     io.updateInputs(inputs);
@@ -65,5 +75,7 @@ public class ShooterSubsystem extends SubsystemBase {
     } else {
       io.stop();
     }
+
+    updateNT();
   }
 }

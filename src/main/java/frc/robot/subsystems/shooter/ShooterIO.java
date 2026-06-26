@@ -3,6 +3,7 @@ package frc.robot.subsystems.shooter;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.MotorOutputConfigs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.configs.TalonFXConfigurator;
 import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
@@ -97,6 +98,15 @@ public class ShooterIO {
     topRightMotor.getConfigurator().apply(config);
     bottomLeftMotor.getConfigurator().apply(config);
     bottomRightMotor.getConfigurator().apply(config);
+  }
+
+  public TalonFXConfigurator[] getConfigurators() {
+    return new TalonFXConfigurator[] {
+      topLeftMotor.getConfigurator(),
+      topRightMotor.getConfigurator(),
+      bottomLeftMotor.getConfigurator(),
+      bottomRightMotor.getConfigurator()
+    };
   }
 
   public void updateInputs(ShooterIOInputs inputs) {

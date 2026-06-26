@@ -2,6 +2,7 @@ package frc.robot.constants;
 
 import com.ctre.phoenix6.CANBus;
 import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
+import frc.robot.util.NTFullGains;
 
 public class ShooterConstants {
   /* CAN */
@@ -19,6 +20,8 @@ public class ShooterConstants {
   public static final double kG = 0;
   public static final double kV = 0.125;
   public static final double kA = 0;
+
+  public static final NTFullGains gains = new NTFullGains("Shooter", kP, kI, kD, kS, kV, kG, kA);
 
   /* Shotmap */
   public static final InterpolatingDoubleTreeMap shooterVelocityMap =
