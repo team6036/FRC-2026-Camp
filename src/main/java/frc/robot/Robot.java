@@ -24,6 +24,9 @@ public class Robot extends TimedRobot {
   private final IntakeSubsystem intake;
   private final XboxController controller = new XboxController(0);
 
+  private double shooterTrim;
+  private int lastPOV = -1;
+
   // ===== PULL UP SHOOTING NetworkTables subscribers/de-bouncer HERE =====
 
   public Robot() {
@@ -63,6 +66,17 @@ public class Robot extends TimedRobot {
 
   @Override
   public void teleopPeriodic() {
+    // Shooter trim stuff (dpad is under POV https://docs.wpilib.org/en/stable/docs/software/basic-programming/joystick.html)
+    int pov = controller.getPOV();
+    if (pov != lastPOV) {
+      if (pov == 0) shooterTrim += 1;
+      else if (pov == 180) shooterTrim -= 1;
+      lastPOV = pov;
+    }
+
+    Logger.log("Joysticks/POV", pov);
+    Logger.log("Subsystems/Shooter/Trim", shooterTrim);
+
     double vx = controller.getLeftY() * SwerveConstants.maxLinearSpeed;
     double vy = controller.getLeftX() * SwerveConstants.maxLinearSpeed;
     double omega = controller.getRightX() * SwerveConstants.maxAngularSpeed;
@@ -76,7 +90,7 @@ public class Robot extends TimedRobot {
       if (swerve.isAimedAtHub()) {
         double distance = swerve.getDistanceFromHub();
         double velocity = shooter.getVelocityForDistance(distance);
-        shooter.shoot(velocity);
+        shooter.shoot(velocity, shooterTrim);
       }
     } else if (controller.getBButton()) {
       intake.run();
@@ -101,7 +115,7 @@ public class Robot extends TimedRobot {
         swerve.aimAtHub(vx, vy);
         Logger.log("WantToAimAtHub", true);
         if (swerve.isAimedAtHub()) {
-          shooter.shoot(shooter.getVelocityForDistance(swerve.getDistanceFromHub()));
+          shooter.shoot(shooter.getVelocityForDistance(swerve.getDistanceFromHub()), shooterTrim);
         }
       }
     }

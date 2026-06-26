@@ -34,6 +34,10 @@ public class ShooterSubsystem extends SubsystemBase {
     this.isShooting = true;
   }
 
+  public void shoot(double velocityRPS, double trim) {
+    shoot(velocityRPS + trim);
+  }
+
   public void stop() {
     this.wantedVelocityRPS = 0;
     this.isShooting = false;
@@ -42,6 +46,7 @@ public class ShooterSubsystem extends SubsystemBase {
   @Override
   public void periodic() {
     io.updateInputs(inputs);
+    boolean topAtSpeed = isShooting && Math.abs(inputs.topLeftVelocityRPS) >= wantedVelocityRPS * 0.9;
 
     Logger.log("Subsystems/Shooter/WantedVelocityRPS", wantedVelocityRPS);
     Logger.log("Subsystems/Shooter/BottomLeftVelocity", inputs.bottomLeftVelocityRPS);
@@ -52,11 +57,11 @@ public class ShooterSubsystem extends SubsystemBase {
     Logger.log("Subsystems/Shooter/BottomLeftPresent", inputs.bottomLeftPresent);
     Logger.log("Subsystems/Shooter/BottomRightPresent", inputs.bottomRightPresent);
 
+    Logger.log("Subsystems/Shooter/TopAtSpeed", topAtSpeed);
+
     if (isShooting) {
       io.setTopVelocity(wantedVelocityRPS);
-      if (Math.abs(inputs.topLeftVelocityRPS) >= wantedVelocityRPS * 0.9) {
-        io.setBottomVelocity(wantedVelocityRPS);
-      }
+      if (topAtSpeed) io.setBottomVelocity(wantedVelocityRPS);
     } else {
       io.stop();
     }
