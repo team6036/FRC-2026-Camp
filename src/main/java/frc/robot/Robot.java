@@ -6,6 +6,7 @@ package frc.robot;
 
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.TimedRobot;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.constants.SwerveConstants;
@@ -26,6 +27,15 @@ public class Robot extends TimedRobot {
 
   private double shooterTrim;
   private int lastPOV = -1;
+
+  private Timer intakeCommitTimer = new Timer();
+  private enum CollectState {
+    SEEKING,
+    INTAKING,
+    AIMING,
+    SHOOTING
+  };
+  private CollectState state = CollectState.SEEKING;
 
   // ===== PULL UP SHOOTING NetworkTables subscribers/de-bouncer HERE =====
 
@@ -104,30 +114,46 @@ public class Robot extends TimedRobot {
     // HINT: swerve.isAimedAtHub()
     // HINT: the three methods we used in the exercise above!
     else if (controller.getAButton()) {
-      if (!swerve.ballCollected()) {
-        swerve.driveTowardTarget();
-
-        if (swerve.isNearBall()) {
+      switch (state) {
+        case SEEKING:
+          swerve.chaseTarget();
+          if (swerve.ballClose()) {
+            intakeCommitTimer.restart();
+            state = CollectState.INTAKING;
+          }
+          break;
+        case INTAKING:
+          swerve.driveForwardBlind();
           intake.run();
-        } else {
-          intake.stop();
-        }
-      } else {
-        swerve.aimAtHub(vx, vy);
-        Logger.log("WantToAimAtHub", true);
-        if (swerve.isAimedAtHub()) {
-          shooter.shoot(shooter.getVelocityForDistance(swerve.getDistanceFromHub()), shooterTrim);
-        }
+          if (intakeCommitTimer.hasElapsed(1.5)) {
+              state = CollectState.AIMING;
+          }
+          break;
+        case AIMING:
+          swerve.aimAtHub(vx, vy);
+          if (swerve.isAimedAtHub()) {
+            state = CollectState.SHOOTING;
+          }
+          break;
+        case SHOOTING:
+          swerve.aimAtHub(vx, vy);
+          double distance = swerve.getDistanceFromHub();
+          double velocity = shooter.getVelocityForDistance(distance);
+          shooter.shoot(velocity, shooterTrim);
+          break;
       }
     }
 
     // ============================================================
     else {
-      swerve.resetCollectSequence();
+      state = CollectState.SEEKING;
       shooter.stop();
       intake.stop();
       swerve.drive(new ChassisSpeeds(vx, vy, omega));
     }
+
+    Logger.log("Tracking/CollectState", state.toString());
+    Logger.log("Tracking/IntakeCommitTimer", intakeCommitTimer.get());
   }
 
   @Override
