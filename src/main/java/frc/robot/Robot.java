@@ -31,15 +31,6 @@ public class Robot extends TimedRobot {
 
   private Timer intakeCommitTimer = new Timer();
 
-  private enum CollectState {
-    SEEKING,
-    INTAKING,
-    AIMING,
-    SHOOTING
-  };
-
-  private CollectState state = CollectState.SEEKING;
-
   // ===== PULL UP SHOOTING NetworkTables subscribers/de-bouncer HERE =====
 
   public Robot() {
@@ -120,45 +111,15 @@ public class Robot extends TimedRobot {
     // HINT: swerve.isAimedAtHub()
     // HINT: the three methods we used in the exercise above!
     else if (controller.getAButton()) {
-      switch (state) {
-        case SEEKING:
-          swerve.chaseTarget();
-          if (swerve.ballClose()) {
-            intakeCommitTimer.restart();
-            state = CollectState.INTAKING;
-          }
-          break;
-        case INTAKING:
-          swerve.driveForwardBlind();
-          intake.run();
-          if (intakeCommitTimer.hasElapsed(1.5)) {
-            state = CollectState.AIMING;
-          }
-          break;
-        case AIMING:
-          swerve.aimAtHub(vx, vy);
-          if (swerve.isAimedAtHub()) {
-            state = CollectState.SHOOTING;
-          }
-          break;
-        case SHOOTING:
-          swerve.aimAtHub(vx, vy);
-          double distance = swerve.getDistanceFromHub();
-          double velocity = shooter.getVelocityForDistance(distance);
-          shooter.shoot(velocity, shooterTrim);
-          break;
-      }
     }
 
     // ============================================================
     else {
-      state = CollectState.SEEKING;
       shooter.stop();
       intake.stop();
       swerve.drive(new ChassisSpeeds(vx, vy, omega));
     }
 
-    Logger.log("Tracking/CollectState", state.toString());
     Logger.log("Tracking/IntakeCommitTimer", intakeCommitTimer.get());
   }
 
