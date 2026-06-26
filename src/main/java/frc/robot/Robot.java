@@ -66,7 +66,8 @@ public class Robot extends TimedRobot {
 
   @Override
   public void teleopPeriodic() {
-    // Shooter trim stuff (dpad is under POV https://docs.wpilib.org/en/stable/docs/software/basic-programming/joystick.html)
+    // Shooter trim stuff (dpad is under POV
+    // https://docs.wpilib.org/en/stable/docs/software/basic-programming/joystick.html)
     int pov = controller.getPOV();
     if (pov != lastPOV) {
       if (pov == 0) shooterTrim += 1;

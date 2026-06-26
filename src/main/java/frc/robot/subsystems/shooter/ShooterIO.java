@@ -81,7 +81,7 @@ public class ShooterIO {
   public void configurePID(
       double kP, double kI, double kD, double kS, double kV, double kG, double kA) {
     TalonFXConfiguration config = new TalonFXConfiguration();
-    topLeftMotor.getConfigurator().refresh(config);  // Need to read current config into config first
+    topLeftMotor.getConfigurator().refresh(config); // Need to read current config into config first
     topRightMotor.getConfigurator().refresh(config);
     bottomLeftMotor.getConfigurator().refresh(config);
     bottomRightMotor.getConfigurator().refresh(config);

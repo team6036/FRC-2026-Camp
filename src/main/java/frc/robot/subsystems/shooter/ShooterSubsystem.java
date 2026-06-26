@@ -56,7 +56,8 @@ public class ShooterSubsystem extends SubsystemBase {
   @Override
   public void periodic() {
     io.updateInputs(inputs);
-    boolean topAtSpeed = isShooting && Math.abs(inputs.topLeftVelocityRPS) >= wantedVelocityRPS * 0.9;
+    boolean topAtSpeed =
+        isShooting && Math.abs(inputs.topLeftVelocityRPS) >= wantedVelocityRPS * 0.9;
 
     Logger.log("Subsystems/Shooter/WantedVelocityRPS", wantedVelocityRPS);
     Logger.log("Subsystems/Shooter/BottomLeftVelocity", inputs.bottomLeftVelocityRPS);
