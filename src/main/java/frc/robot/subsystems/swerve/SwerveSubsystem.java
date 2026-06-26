@@ -13,7 +13,6 @@ import edu.wpi.first.networktables.BooleanSubscriber;
 import edu.wpi.first.networktables.DoubleSubscriber;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
-import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.constants.FieldConstants;
 import frc.robot.constants.RobotConstants;
@@ -143,6 +142,10 @@ public class SwerveSubsystem extends SubsystemBase {
   }
 
   public void aimAtHub(double vx, double vy) {
+    aimAtHub(vx, vy, 0);
+  }
+
+  public void aimAtHub(double vx, double vy, double omegaTrim) {
     Translation2d hubPosition = FieldConstants.Hub.redHubPosition.toTranslation2d();
     Translation2d toHub = hubPosition.minus(inputs.pose.getTranslation());
     Rotation2d targetAngle = new Rotation2d(toHub.getX(), toHub.getY()).plus(Rotation2d.kPi);
@@ -150,7 +153,7 @@ public class SwerveSubsystem extends SubsystemBase {
     double currentAngle = inputs.pose.getRotation().getRadians();
     double omega =
         MathUtil.clamp(
-            hubAimController.calculate(currentAngle, targetAngle.getRadians()),
+            hubAimController.calculate(currentAngle, targetAngle.getRadians() + omegaTrim),
             -SwerveConstants.maxAngularSpeed,
             SwerveConstants.maxAngularSpeed);
 

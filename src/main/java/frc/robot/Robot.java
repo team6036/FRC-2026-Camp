@@ -26,15 +26,18 @@ public class Robot extends TimedRobot {
   private final XboxController controller = new XboxController(0);
 
   private double shooterTrim;
+  private double omegaTrim;
   private int lastPOV = -1;
 
   private Timer intakeCommitTimer = new Timer();
+
   private enum CollectState {
     SEEKING,
     INTAKING,
     AIMING,
     SHOOTING
   };
+
   private CollectState state = CollectState.SEEKING;
 
   // ===== PULL UP SHOOTING NetworkTables subscribers/de-bouncer HERE =====
@@ -82,11 +85,14 @@ public class Robot extends TimedRobot {
     if (pov != lastPOV) {
       if (pov == 0) shooterTrim += 1;
       else if (pov == 180) shooterTrim -= 1;
+      else if (pov == 90) omegaTrim += 0.1;
+      else if (pov == 270) omegaTrim -= 0.1;
       lastPOV = pov;
     }
 
     Logger.log("Joysticks/POV", pov);
     Logger.log("Subsystems/Shooter/Trim", shooterTrim);
+    Logger.log("Subsystems/Swerve/OmegaTrim", omegaTrim);
 
     double vx = controller.getLeftY() * SwerveConstants.maxLinearSpeed;
     double vy = controller.getLeftX() * SwerveConstants.maxLinearSpeed;
@@ -97,7 +103,7 @@ public class Robot extends TimedRobot {
     // HINT: shooter.getVelocityForDistance()
     // HINT: shooter.shoot(...)
     if (controller.getYButton()) {
-      swerve.aimAtHub(vx, vy);
+      swerve.aimAtHub(vx, vy, omegaTrim);
       if (swerve.isAimedAtHub()) {
         double distance = swerve.getDistanceFromHub();
         double velocity = shooter.getVelocityForDistance(distance);
@@ -126,7 +132,7 @@ public class Robot extends TimedRobot {
           swerve.driveForwardBlind();
           intake.run();
           if (intakeCommitTimer.hasElapsed(1.5)) {
-              state = CollectState.AIMING;
+            state = CollectState.AIMING;
           }
           break;
         case AIMING:
