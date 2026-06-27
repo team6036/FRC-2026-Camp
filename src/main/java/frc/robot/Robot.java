@@ -4,7 +4,12 @@
 
 package frc.robot;
 
+import edu.wpi.first.math.filter.Debouncer;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.networktables.BooleanSubscriber;
+import edu.wpi.first.networktables.BooleanTopic;
+import edu.wpi.first.networktables.NetworkTable;
+import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.XboxController;
@@ -41,6 +46,8 @@ public class Robot extends TimedRobot {
   private CollectState state = CollectState.SEEKING;
 
   // ===== PULL UP SHOOTING NetworkTables subscribers/de-bouncer HERE =====
+  private BooleanSubscriber shootSubscriber;
+  private final Debouncer shootDebouncer = new Debouncer(0.1, Debouncer.DebounceType.kBoth);
 
   public Robot() {
     super(0.02);
@@ -56,6 +63,10 @@ public class Robot extends TimedRobot {
     shooter.addShot(2.7, 47);
     shooter.addShot(3.0, 50);
     // ============================================================
+
+    NetworkTableInstance inst = NetworkTableInstance.getDefault();
+    NetworkTable table = inst.getTable("Vision");
+    shootSubscriber = table.getBooleanTopic("Shoot").subscribe(false);
   }
 
   @Override
@@ -102,7 +113,8 @@ public class Robot extends TimedRobot {
     // HINT: swerve.getDistanceFromHub()
     // HINT: shooter.getVelocityForDistance()
     // HINT: shooter.shoot(...)
-    if (controller.getYButton()) {
+    boolean shouldShoot = shootDebouncer.calculate(shootSubscriber.get());
+    if (controller.getYButton() || shouldShoot) {
       swerve.aimAtHub(vx, vy, omegaTrim);
       if (swerve.isAimedAtHub()) {
         double distance = swerve.getDistanceFromHub();
