@@ -31,8 +31,8 @@ public class RobotConstants {
 
   public static final RobotType robotType =
       switch (serialNumber) {
-        case "023FF3E1" -> RobotType.CAMP_A;
-        case "032381B0" -> RobotType.CAMP_B;
+        case "023FF3E1" -> RobotType.CAMP_B;
+        case "032381B0" -> RobotType.CAMP_C;
         case "0326F27E" -> RobotType.CAMP_C;
         case "0251EF71" -> RobotType.CAMP_D;
         default -> {
@@ -54,7 +54,7 @@ public class RobotConstants {
       switch (robotType) {
         case CAMP_A -> SwerveModuleType.MK4n_L2;
         case CAMP_B -> SwerveModuleType.MK4n_L2;
-        case CAMP_C -> SwerveModuleType.MK4i_L2;
+        case CAMP_C -> SwerveModuleType.MK5n_L2;
         case CAMP_D -> SwerveModuleType.MK5n_L2;
         case UNKNOWN -> SwerveModuleType.MK4n_L2;
       };
