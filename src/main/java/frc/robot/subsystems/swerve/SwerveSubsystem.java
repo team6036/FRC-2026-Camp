@@ -216,4 +216,8 @@ public class SwerveSubsystem extends SubsystemBase {
   public void resetPose(Pose2d pose) {
     io.resetPose(pose);
   }
+
+  public void zeroGyro() {
+    io.seedFieldCentric();
+  }
 }

@@ -109,6 +109,9 @@ public class Robot extends TimedRobot {
     double vy = controller.getLeftX() * SwerveConstants.maxLinearSpeed;
     double omega = controller.getRightX() * SwerveConstants.maxAngularSpeed;
 
+    if (controller.getRawButton(7) && controller.getRawButton(8)) { // + and -
+      swerve.zeroGyro();
+    }
     // ===== YOUR JOB: Make shooter shoot at correct velocity =====
     // HINT: swerve.getDistanceFromHub()
     // HINT: shooter.getVelocityForDistance()
