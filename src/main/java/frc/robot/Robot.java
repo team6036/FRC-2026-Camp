@@ -10,6 +10,8 @@ import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.constants.RobotConstants;
 import frc.robot.constants.SwerveConstants;
+import frc.robot.subsystems.shooter.ShooterIO;
+import frc.robot.subsystems.shooter.ShooterSubsystem;
 import frc.robot.subsystems.swerve.SwerveIO;
 import frc.robot.subsystems.swerve.SwerveSubsystem;
 import frc.robot.util.Logger;
@@ -17,7 +19,7 @@ import frc.robot.util.Logger;
 public class Robot extends TimedRobot {
 
   private final SwerveSubsystem swerve;
-  // private final ShooterSubsystem shooter;
+  private final ShooterSubsystem shooter;
   // private final IntakeSubsystem intake;
   private final XboxController controller = new XboxController(0);
 
@@ -26,18 +28,18 @@ public class Robot extends TimedRobot {
   public Robot() {
     super(0.02);
     swerve = new SwerveSubsystem(new SwerveIO());
-    // shooter = new ShooterSubsystem(new ShooterIO());
+    shooter = new ShooterSubsystem(new ShooterIO());
     // intake = new IntakeSubsystem(new IntakeIO());
 
     // ===== YOUR JOB: Tune the shooter ===========================
     //    shooter.configurePID(0, 0, 0, 0, 0, 0, 0);
     //    shooter.addShot(0.0, 20.0);
     // ============================================================
-    //    shooter.configurePID(0.5, 0, 0, 0.275, 0.12, 0, 0);
-    //    shooter.addShot(3.7, 50);
-    //    shooter.addShot(2.2, 32);
-    //    shooter.addShot(3, 38);
-    //    shooter.addShot(4, 54);
+    shooter.configurePID(0.5, 0, 0, 0.275, 0.12, 0, 0);
+    shooter.addShot(3.7, 50);
+    shooter.addShot(2.2, 32);
+    shooter.addShot(3, 38);
+    shooter.addShot(4, 54);
     Logger.log("SerialNumber", RobotConstants.serialNumber);
   }
 
@@ -73,8 +75,9 @@ public class Robot extends TimedRobot {
     // HINT: shooter.getVelocityForDistance()
     // HINT: shooter.shoot(...)
     if (controller.getYButton() || controller.getRawButton(4)) {
-      double distance = swerve.getDistanceFromHub();
-      //      shooter.shoot(shooter.getVelocityForDistance(distance));
+      // double distance = swerve.getDistanceFromHub();
+      // shooter.shoot(shooter.getVelocityForDistance(distance));
+      shooter.shoot(40);
     }
 
     // ===== YOUR JOB: Autonomous driving! ========================
@@ -89,7 +92,7 @@ public class Robot extends TimedRobot {
 
     // ============================================================
     else {
-      //      shooter.stop();
+      shooter.stop();
       //      intake.stop();
       swerve.drive(new ChassisSpeeds(vx, vy, omega));
     }
