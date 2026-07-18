@@ -34,7 +34,7 @@ public class RobotConstants {
         case "023FF3E1" -> RobotType.CAMP_B;
         case "032381B0" -> RobotType.CAMP_C;
         case "0326F27E" -> RobotType.CAMP_A;
-        case "0251EF71" -> RobotType.CAMP_D;
+        case "0251EF71" -> RobotType.CAMP_B; // rio moved, D was taken apart and moved to bot B
         default -> {
           if (Robot.isReal()) {
             new Alert(
