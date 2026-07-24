@@ -49,6 +49,7 @@ public class IntakeIO {
 
   public void setVoltage(double voltage) {
     leftMotor.setControl(voltageRequest.withOutput(voltage));
+    leftMotor.setControl(voltageRequest.withOutput(-voltage));
   }
 
   public void setCoast() {

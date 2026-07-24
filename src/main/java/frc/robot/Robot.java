@@ -10,6 +10,8 @@ import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.constants.RobotConstants;
 import frc.robot.constants.SwerveConstants;
+import frc.robot.subsystems.intake.IntakeIO;
+import frc.robot.subsystems.intake.IntakeSubsystem;
 import frc.robot.subsystems.shooter.ShooterIO;
 import frc.robot.subsystems.shooter.ShooterSubsystem;
 import frc.robot.subsystems.swerve.SwerveIO;
@@ -20,7 +22,7 @@ public class Robot extends TimedRobot {
 
   private final SwerveSubsystem swerve;
   private final ShooterSubsystem shooter;
-  // private final IntakeSubsystem intake;
+  private final IntakeSubsystem intake;
   private final XboxController controller = new XboxController(0);
 
   // ===== PULL UP SHOOTING NetworkTables subscribers/de-bouncer HERE =====
@@ -29,7 +31,7 @@ public class Robot extends TimedRobot {
     super(0.02);
     swerve = new SwerveSubsystem(new SwerveIO());
     shooter = new ShooterSubsystem(new ShooterIO());
-    // intake = new IntakeSubsystem(new IntakeIO());
+    intake = new IntakeSubsystem(new IntakeIO());
 
     // ===== YOUR JOB: Tune the shooter ===========================
     //    shooter.configurePID(0, 0, 0, 0, 0, 0, 0);
@@ -86,14 +88,16 @@ public class Robot extends TimedRobot {
     // HINT: swerve.aimAtHub(vx, vy)
     // HINT: swerve.isAimedAtHub()
     // HINT: the three methods we used in the exercise above!
-    else if (controller.getAButton()) {
-
+    else if (controller.getAButton() || controller.getRawButton(1)) {
+      intake.run();
+      Logger.log("intake", "running");
     }
 
     // ============================================================
     else {
       shooter.stop();
-      //      intake.stop();
+      intake.stop();
+      Logger.log("intake", "stopped");
       swerve.drive(new ChassisSpeeds(vx, vy, omega));
     }
   }
