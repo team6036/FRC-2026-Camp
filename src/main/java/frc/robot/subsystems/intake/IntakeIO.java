@@ -63,7 +63,7 @@ public class IntakeIO {
   }
 
   public void setVoltage(double voltage) {
-    leftMotor.setControl(voltageRequest.withOutput(voltage));
+    leftMotor.setControl(voltageRequest.withOutput(-voltage));
     if (intakeRightPresent && !intakeLeftPresent) {
       rightMotor.setControl(voltageRequest.withOutput(voltage));
     }
