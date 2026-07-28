@@ -121,10 +121,12 @@ public class SwerveConstants {
 
   public static final double[] encoderOffsets =
       switch (RobotConstants.robotType) {
-        case CAMP_A -> new double[] {0.225342, -0.250732 + 0.5, -0.322021, -0.037354 + 0.5};
-        case CAMP_B -> new double[] {-0.118408, -0.415039 + 0.5, 0.318115, -0.248779};
-        case CAMP_D -> new double[] {0.176025, -0.25, -0.265137, -0.027832};
-        case CAMP_C -> new double[] {0.354492, -.436035, -.182373, -.303955};
+        case CAMP_A -> new double[] {0.354492, -.436035, -.182373, -.303955}; // mk4i
+        case CAMP_B -> new double[] {
+                0.225342, -0.250732 + 0.5, -0.322021, -0.037354 + 0.5
+        }; // mk4n Nathan / closest to TV
+        case CAMP_C -> new double[] {0.176025, -0.25, -0.265137, -0.027832}; // Mk5
+        case CAMP_D -> new double[] {-0.248779, 0.318115, -0.415039 + 0.5, -0.118408}; // other mk4n
         default -> new double[] {0, 0, 0, 0};
       };
 
