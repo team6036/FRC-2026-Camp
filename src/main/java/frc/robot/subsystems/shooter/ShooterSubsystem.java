@@ -44,21 +44,6 @@ public class ShooterSubsystem extends SubsystemBase {
     this.isShooting = false;
   }
 
-  public void updateNT() {
-    boolean update = ShooterConstants.shooterGains.shouldUpdate();
-
-    if (!update) return;
-    TalonFXConfigurator tlConfig = io.topLeftMotor.getConfigurator();
-    TalonFXConfigurator trConfig = io.topRightMotor.getConfigurator();
-    TalonFXConfigurator blConfig = io.bottomLeftMotor.getConfigurator();
-    TalonFXConfigurator brConfig = io.bottomRightMotor.getConfigurator();
-
-    ShooterConstants.shooterGains.update(tlConfig);
-    ShooterConstants.shooterGains.update(trConfig);
-    ShooterConstants.shooterGains.update(blConfig);
-    ShooterConstants.shooterGains.update(brConfig);
-  }
-
   private void updateNT() {
     boolean update = ShooterConstants.gains.shouldUpdate();
     if (!update) return;

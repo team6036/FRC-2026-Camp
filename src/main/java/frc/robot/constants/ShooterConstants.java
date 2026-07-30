@@ -21,8 +21,7 @@ public class ShooterConstants {
   public static final double kV = 0.125;
   public static final double kA = 0;
 
-  public static final NTFullGains shooterGains =
-      new NTFullGains("Shooter", kP, kI, kD, kS, kV, kA, kG);
+  public static final NTFullGains gains = new NTFullGains("Shooter", kP, kI, kD, kS, kV, kA, kG);
 
   /* Shotmap */
   public static final InterpolatingDoubleTreeMap shooterVelocityMap =
