@@ -59,10 +59,7 @@ public class SwerveIO extends SwerveDrivetrain<TalonFX, TalonFX, CANcoder> {
         continue;
       }
 
-      Optional<EstimatedRobotPose> estimate =
-          result.getMultiTagResult().isPresent()
-              ? poseEstimator.estimateCoprocMultiTagPose(result)
-              : poseEstimator.estimateLowestAmbiguityPose(result);
+      Optional<EstimatedRobotPose> estimate = poseEstimator.estimateLowestAmbiguityPose(result);
 
       if (estimate.isPresent()) {
         resetPose(estimate.get().estimatedPose.toPose2d());
@@ -84,12 +81,7 @@ public class SwerveIO extends SwerveDrivetrain<TalonFX, TalonFX, CANcoder> {
       }
 
       Logger.log("Subsystems/Swerve/Vision/HasTargets", result.hasTargets());
-      Optional<EstimatedRobotPose> estimate;
-      if (result.getMultiTagResult().isPresent()) {
-        estimate = poseEstimator.estimateCoprocMultiTagPose(result);
-      } else {
-        estimate = poseEstimator.estimateLowestAmbiguityPose(result);
-      }
+      Optional<EstimatedRobotPose> estimate = poseEstimator.estimateLowestAmbiguityPose(result);
       Logger.log("Subsystems/Swerve/Vision/HasEstimate", estimate.isPresent());
 
       if (estimate.isPresent()) {

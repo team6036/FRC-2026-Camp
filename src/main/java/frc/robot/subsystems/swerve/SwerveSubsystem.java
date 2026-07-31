@@ -128,7 +128,7 @@ public class SwerveSubsystem extends SubsystemBase {
   }
 
   public boolean ballClose() {
-    return targetYSub.getAsDouble() > 700;
+    return targetYSub.getAsDouble() < 100;
   }
 
   public boolean isAimedAtTarget() {

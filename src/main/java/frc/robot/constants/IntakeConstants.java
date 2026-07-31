@@ -18,5 +18,5 @@ public class IntakeConstants {
   public static final double kG = 0;
   public static final double kA = 0;
 
-  public static final double intakeVoltage = 10;
+  public static final double intakeVoltage = 7;
 }
