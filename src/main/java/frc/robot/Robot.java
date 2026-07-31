@@ -137,35 +137,7 @@ public class Robot extends TimedRobot {
     // HINT: swerve.isAimedAtHub()
     // HINT: the three methods we used in the exercise above!
     else if (controller.getAButton()) {
-      switch (state) {
-        case SEEKING:
-          swerve.chaseTarget();
-          if (swerve.ballClose()) {
-            intakeCommitTimer.restart();
-            state = CollectState.INTAKING;
-          }
-          break;
-        case INTAKING:
-          swerve.driveForwardBlind();
-          intake.run();
-          if (intakeCommitTimer.hasElapsed(1.5)) {
-            state = CollectState.AIMING;
-          }
-          break;
-        case AIMING:
-          swerve.aimAtHub(vx, vy);
-          if (swerve.isAimedAtHub()) {
-            intake.stop();
-            state = CollectState.SHOOTING;
-          }
-          break;
-        case SHOOTING:
-          swerve.aimAtHub(vx, vy);
-          double distance = swerve.getDistanceFromHub();
-          double velocity = shooter.getVelocityForDistance(distance);
-          shooter.shoot(velocity, shooterTrim);
-          break;
-      }
+
     }
 
     // ============================================================
