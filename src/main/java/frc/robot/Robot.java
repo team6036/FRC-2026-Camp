@@ -109,7 +109,7 @@ public class Robot extends TimedRobot {
 
     double vx = controller.getLeftY() * SwerveConstants.maxLinearSpeed;
     double vy = controller.getLeftX() * SwerveConstants.maxLinearSpeed;
-    double omega = controller.getRightX() * SwerveConstants.maxAngularSpeed;
+    double omega = -controller.getRightX() * SwerveConstants.maxAngularSpeed;
 
     if (controller.getRawButton(7) && controller.getRawButton(8)) { // + and -
       swerve.zeroGyro();
@@ -155,6 +155,7 @@ public class Robot extends TimedRobot {
         case AIMING:
           swerve.aimAtHub(vx, vy);
           if (swerve.isAimedAtHub()) {
+            intake.stop();
             state = CollectState.SHOOTING;
           }
           break;

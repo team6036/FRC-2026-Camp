@@ -19,6 +19,6 @@ public class FieldConstants {
     public static final Translation3d blueHubPosition =
         new Translation3d(hubToDSDistance + hubSize / 2, fieldWidthMeters / 2, hubHeight);
     public static final Translation3d redHubPosition =
-        new Translation3d(Units.inchesToMeters(469.102530 + 22), fieldWidthMeters / 2, hubHeight);
+        new Translation3d(Units.inchesToMeters(469.102530), fieldWidthMeters / 2, hubHeight);
   }
 }

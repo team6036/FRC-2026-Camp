@@ -80,7 +80,7 @@ public class SwerveSubsystem extends SubsystemBase {
       default:
         vx = speeds.vxMetersPerSecond;
         vy = speeds.vyMetersPerSecond;
-        omega = -speeds.omegaRadiansPerSecond;
+        omega = speeds.omegaRadiansPerSecond;
     }
 
     if (RobotConstants.onBlue()) {
@@ -128,7 +128,7 @@ public class SwerveSubsystem extends SubsystemBase {
   }
 
   public boolean ballClose() {
-    return targetYSub.getAsDouble() < 100;
+    return targetYSub.getAsDouble() > 600;
   }
 
   public boolean isAimedAtTarget() {
